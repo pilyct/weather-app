@@ -1,119 +1,42 @@
-/* Default background */
-.bg-gradient-to-b {
-  /* background: linear-gradient(to bottom, #edf2f7, #a0aec0, #718096, #4a5568, #2d3748); */
-  background: url('../public/day-overcast-clouds.png') no-repeat center center fixed;
-  background-size: cover;
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
 }
 
-/* Daytime backgrounds */
-.bg-day-clear {
-  background: url('../public/day-clear.png') no-repeat center center fixed;
-  background-size: cover;
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-.bg-day-few-clouds {
-  background: url('../public/day-few-clouds.png') no-repeat center center fixed;
-  background-size: cover;
-  /* animation: moveClouds 60s linear infinite; */
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.bg-day-scattered-clouds {
-  background: url('../public/day-scattered-clouds.png') no-repeat center center fixed;
-  background-size: cover;
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
 }
 
-.bg-day-broken-clouds {
-  background: url('../public/day-broken-clouds.png') no-repeat center center fixed;
-  background-size: cover;
+.card {
+  padding: 2em;
 }
 
-.bg-day-overcast-clouds {
-  background: url('../public/day-overcast-clouds.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-day-shower-rain {
-  background: url('../public/day-shower-rain.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-day-rain {
-  background: url('../public/day-rain.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-day-storm {
-  background: url('../public/day-storm.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-day-mist {
-  background: url('../public/day-mist.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-day-snow {
-  background: url('../public/day-snow.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-day-default {
-  background: url('../public/day-overcast-clouds.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-/* Nighttime backgrounds */
-.bg-night-clear {
-  background: url('../public/night-clear.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-night-few-clouds {
-  background: url('../public/night-few-clouds.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-night-scattered-clouds {
-  background: url('../public/night-scattered-clouds.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-night-broken-clouds {
-  background: url('../public/night-broken-clouds.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-night-overcast-clouds {
-  background: url('../public/night-overcast-clouds.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-night-shower-rain {
-  background: url('../public/night-shower-rain.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-night-rain {
-  background: url('../public/night-rain.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-night-storm {
-  background: url('../public/night-storm.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-night-mist {
-  background: url('../public/night-mist.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-night-snow {
-  background: url('../public/night-snow.png') no-repeat center center fixed;
-  background-size: cover;
-}
-
-.bg-night-default {
-  background: url('../public/night-clear.png') no-repeat center center fixed;
-  background-size: cover;
+.read-the-docs {
+  color: #888;
 }

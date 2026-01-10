@@ -1,0 +1,109 @@
+/* Default background */
+.bg-gradient-to-b {
+  background: url("../../public/day-overcast-clouds.png") no-repeat center
+    center fixed;
+  background-size: cover;
+}
+
+/* Daytime backgrounds */
+.bg-day-clear {
+  background: url("../../public/day-clear.png") no-repeat center center fixed;
+  background-size: cover;
+}
+.bg-day-few-clouds {
+  background: url("../../public/day-few-clouds.png") no-repeat center center
+    fixed;
+  background-size: cover;
+}
+.bg-day-scattered-clouds {
+  background: url("../../public/day-scattered-clouds.png") no-repeat center
+    center fixed;
+  background-size: cover;
+}
+.bg-day-broken-clouds {
+  background: url("../../public/day-broken-clouds.png") no-repeat center center
+    fixed;
+  background-size: cover;
+}
+.bg-day-overcast-clouds {
+  background: url("../../public/day-overcast-clouds.png") no-repeat center
+    center fixed;
+  background-size: cover;
+}
+.bg-day-shower-rain {
+  background: url("../../public/day-shower-rain.png") no-repeat center center
+    fixed;
+  background-size: cover;
+}
+.bg-day-rain {
+  background: url("../../public/day-rain.png") no-repeat center center fixed;
+  background-size: cover;
+}
+.bg-day-storm {
+  background: url("../../public/day-storm.png") no-repeat center center fixed;
+  background-size: cover;
+}
+.bg-day-mist {
+  background: url("../../public/day-mist.png") no-repeat center center fixed;
+  background-size: cover;
+}
+.bg-day-snow {
+  background: url("../../public/day-snow.png") no-repeat center center fixed;
+  background-size: cover;
+}
+.bg-day-default {
+  background: url("../../public/day-overcast-clouds.png") no-repeat center
+    center fixed;
+  background-size: cover;
+}
+
+/* Nighttime backgrounds */
+.bg-night-clear {
+  background: url("../../public/night-clear.png") no-repeat center center fixed;
+  background-size: cover;
+}
+.bg-night-few-clouds {
+  background: url("../../public/night-few-clouds.png") no-repeat center center
+    fixed;
+  background-size: cover;
+}
+.bg-night-scattered-clouds {
+  background: url("../../public/night-scattered-clouds.png") no-repeat center
+    center fixed;
+  background-size: cover;
+}
+.bg-night-broken-clouds {
+  background: url("../../public/night-broken-clouds.png") no-repeat center
+    center fixed;
+  background-size: cover;
+}
+.bg-night-overcast-clouds {
+  background: url("../../public/night-overcast-clouds.png") no-repeat center
+    center fixed;
+  background-size: cover;
+}
+.bg-night-shower-rain {
+  background: url("../../public/night-shower-rain.png") no-repeat center center
+    fixed;
+  background-size: cover;
+}
+.bg-night-rain {
+  background: url("../../public/night-rain.png") no-repeat center center fixed;
+  background-size: cover;
+}
+.bg-night-storm {
+  background: url("../../public/night-storm.png") no-repeat center center fixed;
+  background-size: cover;
+}
+.bg-night-mist {
+  background: url("../../public/night-mist.png") no-repeat center center fixed;
+  background-size: cover;
+}
+.bg-night-snow {
+  background: url("../../public/night-snow.png") no-repeat center center fixed;
+  background-size: cover;
+}
+.bg-night-default {
+  background: url("../../public/night-clear.png") no-repeat center center fixed;
+  background-size: cover;
+}

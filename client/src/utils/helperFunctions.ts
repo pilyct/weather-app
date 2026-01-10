@@ -1,11 +1,15 @@
-const iconUrlFromCode = (code: string): string => `http://openweathermap.org/img/wn/${code}@2x.png`;
+import type { Units } from "../types";
 
-const convertCelsiusToFahrenheit = (celsius: number): number => {
-  return (celsius * 9/5) + 32;
-};
+export function iconUrlFromCode(code: string) {
+  // Keep your existing mapping if you have one
+  return `https://openweathermap.org/img/wn/${code}@2x.png`;
+}
 
-const formatTemperature = (temp: number, units: 'metric' | 'imperial'): string => {
-  return units === 'metric' ? temp.toFixed() + ' °C' : convertCelsiusToFahrenheit(temp).toFixed() + ' °F';
-};
+export function convertCelsiusToFahrenheit(c: number) {
+  return (c * 9) / 5 + 32;
+}
 
-export { iconUrlFromCode, convertCelsiusToFahrenheit, formatTemperature };
+export function formatTemperature(temp: number, units: Units) {
+  const t = Math.round(temp);
+  return units === "metric" ? `${t}°C` : `${t}°F`;
+}
