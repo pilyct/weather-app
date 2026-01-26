@@ -1,80 +1,108 @@
-import './App.css';
-import { useState, useEffect, useCallback } from 'react';
-import { getWeatherData, getPoetryData } from './services/api-service';
-import { formatBackground } from './utils/styleFunctions';
+import "./App.css";
+import { useState, useEffect, useCallback } from "react";
+import { getWeatherData, getPoetryData } from "./services/api-service";
+import { formatBackground } from "./utils/styleFunctions";
+import WeatherCard from "./components/WeatherCard";
+import ForecastDaily from "./components/ForecastDaily";
+import ForecastHourly from "./components/ForecastHourly";
+import WeatherPoem from "./components/WeatherPoem";
+import Spinner from "./components/Spinner";
+import { WeatherData, PoemData } from "./types";
 
-import Weather from './components/Weather';
-import ForecastDaily from './components/ForecastDaily';
-import ForecastHourly from './components/ForecastHourly';
-import WeatherPoem from './components/WeatherPoem';
-import Spinner from './components/Spinner';
-
-import { WeatherData, PoemData } from './Types';
-
+type AppState = {
+  weather: WeatherData | null;
+  poem: PoemData | null;
+  loading: boolean;
+  error: string | null;
+};
 
 const App: React.FC = () => {
-    const [city, setCity] = useState<string>('Berlin');
-    const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
-    const [weather, setWeather] = useState<WeatherData | null>(null);
-    const [poemData, setPoemData] = useState<PoemData | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
+  const [city, setCity] = useState("Berlin");
+  const [units, setUnits] = useState<"metric" | "imperial">("metric");
+  const [state, setState] = useState<AppState>({
+    weather: null,
+    poem: null,
+    loading: true,
+    error: null,
+  });
 
-    
+  const fetchData = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
 
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const weatherData = await getWeatherData(city);
-            if (!weatherData) {
-                throw new Error('City not found');
-            }
-            setWeather(weatherData);
+    try {
+      const weatherData = await getWeatherData(city);
+      if (!weatherData) throw new Error("City not found");
 
-            const weatherDescription = weatherData.weather_description; 
-            const words = weatherDescription.split(' ');
-            const keyword = words[1];
+      const keyword =
+        weatherData.weather_description.split(/\s+/)[1] ||
+        weatherData.weather_description.split(/\s+/)[0] ||
+        "weather";
 
-            const poemDataResponse = await getPoetryData(keyword);
-            if (poemDataResponse) {
-                setPoemData(poemDataResponse); 
-            } else {
-                throw new Error('No poem data found');
-            }
+      const poemData = await getPoetryData(keyword).catch(() => null);
 
-        } catch (error: any) {
-            console.error('Error fetching data:', error.message);
-        } finally {
-            setLoading(false); 
-        }
-    }, [city]);
+      setState({
+        weather: weatherData,
+        poem: poemData,
+        loading: false,
+        error: null,
+      });
+    } catch (error) {
+      setState({
+        weather: null,
+        poem: null,
+        loading: false,
+        error: error instanceof Error ? error.message : "An error occurred",
+      });
+    }
+  }, [city]);
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData, units]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-    return (
-        <div className={`min-h-screen flex items-center justify-center w-full ${formatBackground(weather)}`}>
-            <div className={`absolute top-0 left-0 w-full h-full animation-zoomInOut`}></div>
-                {loading ? (
-                    <Spinner />) :
-                    (
-                        <>
-                            <div className='flex flex-col items-center justify-between w-p-2 md:flex-row w-[80%] relative'>
-                                <Weather setCity={setCity} units={units} setUnits={setUnits} weather={weather} />
-                                <div className='flex flex-col items-center w-full mt-4 just md:mt-0'>
-                                    <ForecastHourly weather={weather} units={units} />
-                                    <ForecastDaily weather={weather} units={units} />
-                                    {poemData && (
-                                        <WeatherPoem poemData={poemData} />
-                                    )}
-                                </div>
-                            </div>
-                        </>  
-                    )
-                }
+  const { weather, poem, loading, error } = state;
+
+  return (
+    <div className={`min-h-screen w-full ${formatBackground(weather)}`}>
+      <div className="pointer-events-none fixed inset-0 animation-zoomInOut" />
+
+      {loading && !weather ? (
+        <div className="flex min-h-screen items-center justify-center">
+          <Spinner />
         </div>
-    );
+      ) : error ? (
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="rounded-lg bg-white/90 p-8 text-center shadow-lg backdrop-blur-sm">
+            <p className="mb-4 text-lg font-semibold text-red-600">{error}</p>
+            <button
+              onClick={fetchData}
+              className="rounded-md bg-blue-500 px-6 py-2 text-white hover:bg-blue-600"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mx-auto w-full max-w-[1400px] px-4 py-8 lg:px-6 xl:px-8">
+          <div className="flex flex-col items-center justify-center gap-4 lg:flex-row lg:items-start">
+            <div className="w-full max-w-lg lg:max-w-xl">
+              <WeatherCard
+                setCity={setCity}
+                units={units}
+                setUnits={setUnits}
+                weather={weather}
+              />
+            </div>
+            <div className="flex w-full max-w-md flex-col gap-4 lg:max-w-lg">
+              <ForecastHourly weather={weather} units={units} />
+              <ForecastDaily weather={weather} units={units} />
+              {poem && <WeatherPoem poemData={poem} />}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default App;
-

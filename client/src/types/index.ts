@@ -1,4 +1,3 @@
-
 export interface Coordinates {
   lon: number;
   lat: number;
@@ -62,3 +61,5 @@ export interface ChartDataDaily {
   temp: number;
   icon: string;
 }
+
+export type Units = "metric" | "imperial";
