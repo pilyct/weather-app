@@ -1,12 +1,4 @@
-import { WeatherData, PoemData } from "../types";
-export interface CitySuggestion {
-  name: string;
-  state: string;
-  country: string;
-  lat: number;
-  lon: number;
-  label: string;
-}
+import { WeatherData, PoemData, CitySuggestion } from "../types";
 
 const URL = "http://localhost:3000";
 

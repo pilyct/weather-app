@@ -63,3 +63,12 @@ export interface ChartDataDaily {
 }
 
 export type Units = "metric" | "imperial";
+
+export interface CitySuggestion {
+  name: string;
+  state: string;
+  country: string;
+  lat: number;
+  lon: number;
+  label: string;
+}
