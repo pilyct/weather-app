@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import { DateTime } from 'luxon';
-import openWeatherMap from '../models/weatherData';
+import { Request, Response } from "express";
+import { DateTime } from "luxon";
+import openWeatherMap from "../models/weatherData";
 
 interface GeoData {
   lat: number;
@@ -33,7 +33,7 @@ interface WeatherData {
     speed: number;
   };
   rain?: {
-    '1h': number;
+    "1h": number;
   };
   timezone: number;
 }
@@ -58,12 +58,12 @@ interface ForecastData {
 
 async function getWeatherData(req: Request, res: Response): Promise<void> {
   try {
-    const city = (req.query.city as string) || 'Berlin';
-    const country = (req.query.country as string) || '';
+    const city = (req.query.city as string) || "Berlin";
+    const country = (req.query.country as string) || "";
 
     const geoData = await fetchGeoData(city, country);
     if (!geoData) {
-      res.status(404).json({ error: 'City not found' });
+      res.status(404).json({ error: "City not found" });
       return;
     }
 
@@ -72,28 +72,45 @@ async function getWeatherData(req: Request, res: Response): Promise<void> {
     const weatherData = await fetchWeatherData(lat, lon);
     const forecastData = await fetchForecastData(lat, lon);
 
-    const formattedSunrise = formatTime(weatherData.sys.sunrise, weatherData.timezone);
-    const formattedSunset = formatTime(weatherData.sys.sunset, weatherData.timezone);
+    const formattedSunrise = formatTime(
+      weatherData.sys.sunrise,
+      weatherData.timezone,
+    );
+    const formattedSunset = formatTime(
+      weatherData.sys.sunset,
+      weatherData.timezone,
+    );
     const localTime = formatLocalTime(weatherData.timezone);
 
     const responseData = {
-      ...filterWeatherData(city, weatherData, formattedSunrise, formattedSunset, localTime),
+      ...filterWeatherData(
+        city,
+        weatherData,
+        formattedSunrise,
+        formattedSunset,
+        localTime,
+      ),
       ...filterForecastData(forecastData, weatherData.timezone),
     };
 
     res.json(responseData);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Unable to fetch weather data, please try again' });
+    res
+      .status(500)
+      .json({ error: "Unable to fetch weather data, please try again" });
   }
 }
 
-async function fetchGeoData(city: string, country: string): Promise<GeoData | null> {
+async function fetchGeoData(
+  city: string,
+  country: string,
+): Promise<GeoData | null> {
   const geoUrl = new URL(`${openWeatherMap.GEO_URL}`);
   geoUrl.search = new URLSearchParams({
     q: `${city},${country}`,
-    limit: '1',
-    appid: openWeatherMap.API_KEY || '',
+    limit: "1",
+    appid: openWeatherMap.API_KEY || "",
   }).toString();
 
   const geoResponse = await fetch(geoUrl.toString());
@@ -101,26 +118,32 @@ async function fetchGeoData(city: string, country: string): Promise<GeoData | nu
   return geoData.length ? geoData[0] : null;
 }
 
-async function fetchWeatherData(lat: number, lon: number): Promise<WeatherData> {
+async function fetchWeatherData(
+  lat: number,
+  lon: number,
+): Promise<WeatherData> {
   const weatherUrl = new URL(`${openWeatherMap.BASE_URL}/weather`);
   weatherUrl.search = new URLSearchParams({
     lat: lat.toString(),
     lon: lon.toString(),
-    appid: openWeatherMap.API_KEY || '',
-    units: 'metric',
+    appid: openWeatherMap.API_KEY || "",
+    units: "metric",
   }).toString();
 
   const weatherResponse = await fetch(weatherUrl.toString());
   return await weatherResponse.json();
 }
 
-async function fetchForecastData(lat: number, lon: number): Promise<ForecastData> {
+async function fetchForecastData(
+  lat: number,
+  lon: number,
+): Promise<ForecastData> {
   const forecastUrl = new URL(`${openWeatherMap.BASE_URL}/forecast`);
   forecastUrl.search = new URLSearchParams({
     lat: lat.toString(),
     lon: lon.toString(),
-    appid: openWeatherMap.API_KEY || '',
-    units: 'metric',
+    appid: openWeatherMap.API_KEY || "",
+    units: "metric",
   }).toString();
 
   const forecastResponse = await fetch(forecastUrl.toString());
@@ -128,23 +151,34 @@ async function fetchForecastData(lat: number, lon: number): Promise<ForecastData
 }
 
 function formatTime(timestamp: number, timezoneOffset: number): string {
-  return DateTime.fromMillis(timestamp * 1000).plus({ seconds: timezoneOffset }).toFormat('hh:mm a');
+  return DateTime.fromMillis(timestamp * 1000)
+    .plus({ seconds: timezoneOffset })
+    .toFormat("hh:mm a");
 }
 
 function formatLocalTime(timezoneOffset: number): string {
   const options: Intl.DateTimeFormatOptions = {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
   };
   const utcTime = new Date().getTime() + new Date().getTimezoneOffset() * 60000;
-  return new Date(utcTime + timezoneOffset * 1000).toLocaleString('en-US', options);
+  return new Date(utcTime + timezoneOffset * 1000).toLocaleString(
+    "en-US",
+    options,
+  );
 }
 
-function filterWeatherData(city: string, weatherData: WeatherData, sunrise: string, sunset: string, localTime: string) {
+function filterWeatherData(
+  city: string,
+  weatherData: WeatherData,
+  sunrise: string,
+  sunset: string,
+  localTime: string,
+) {
   return {
     city_name: city,
     country: weatherData.sys.country,
@@ -158,16 +192,21 @@ function filterWeatherData(city: string, weatherData: WeatherData, sunrise: stri
     feels_like: weatherData.main.feels_like,
     humidity: weatherData.main.humidity,
     wind_speed: weatherData.wind.speed,
-    rain_1h: weatherData.rain ? weatherData.rain['1h'] : 0,
+    rain_1h: weatherData.rain ? weatherData.rain["1h"] : 0,
     sunrise,
     sunset,
     local_time: localTime,
   };
 }
 
-function filterForecastData(forecastData: ForecastData, timezoneOffset: number) {
+function filterForecastData(
+  forecastData: ForecastData,
+  timezoneOffset: number,
+) {
   const filteredForecastData = forecastData.list.map((forecast) => {
-    const forecastDateTime = DateTime.fromSeconds(forecast.dt).plus({ seconds: timezoneOffset });
+    const forecastDateTime = DateTime.fromSeconds(forecast.dt).plus({
+      seconds: timezoneOffset,
+    });
     return {
       dt: forecast.dt,
       dt_txt: forecast.dt_txt,
@@ -175,9 +214,9 @@ function filterForecastData(forecastData: ForecastData, timezoneOffset: number) 
       weather_main: forecast.weather[0].main,
       description: forecast.weather[0].description,
       wind_speed: forecast.wind.speed,
-      time: forecastDateTime.toFormat('h:mm a'),
-      date: forecastDateTime.toFormat('yyyy-MM-dd'),
-      week_day: forecastDateTime.toFormat('ccc'),
+      time: forecastDateTime.toFormat("h:mm a"),
+      date: forecastDateTime.toFormat("yyyy-MM-dd"),
+      week_day: forecastDateTime.toFormat("ccc"),
       icon: forecast.weather[0].icon,
     };
   });
@@ -196,7 +235,7 @@ function filterForecastData(forecastData: ForecastData, timezoneOffset: number) 
       icon: forecast.icon,
     });
 
-    if (forecast.date !== DateTime.local().toFormat('yyyy-MM-dd')) {
+    if (forecast.date !== DateTime.local().toFormat("yyyy-MM-dd")) {
       forecastDaily[forecast.week_day] = {
         date: forecast.date,
         time: forecast.time,
@@ -212,10 +251,44 @@ function filterForecastData(forecastData: ForecastData, timezoneOffset: number) 
   };
 }
 
-export { getWeatherData };
+// ----------------
+async function getCitySuggestions(req: Request, res: Response): Promise<void> {
+  try {
+    const query = (req.query.query as string) || "";
 
+    if (!query || query.length < 2) {
+      res.json([]);
+      return;
+    }
 
+    const geoUrl = new URL(`${openWeatherMap.GEO_URL}`);
+    geoUrl.search = new URLSearchParams({
+      q: query,
+      limit: "5", // get up to 5 suggestions
+      appid: openWeatherMap.API_KEY || "",
+    }).toString();
 
+    const geoResponse = await fetch(geoUrl.toString());
+    const geoData = await geoResponse.json();
 
+    // format the response to include city, state, country
+    const suggestions = geoData.map((location: any) => ({
+      name: location.name,
+      state: location.state || "",
+      country: location.country,
+      lat: location.lat,
+      lon: location.lon,
+      // create a display label for the dropdown
+      label: location.state
+        ? `${location.name}, ${location.state}, ${location.country}`
+        : `${location.name}, ${location.country}`,
+    }));
 
+    res.json(suggestions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Unable to fetch city suggestions" });
+  }
+}
 
+export { getWeatherData, getCitySuggestions };
