@@ -1,4 +1,13 @@
 import { WeatherData, PoemData } from "../types";
+export interface CitySuggestion {
+  name: string;
+  state: string;
+  country: string;
+  lat: number;
+  lon: number;
+  label: string;
+}
+
 const URL = "http://localhost:3000";
 
 async function getWeatherData(city: string = "Berlin"): Promise<WeatherData> {
@@ -9,6 +18,19 @@ async function getWeatherData(city: string = "Berlin"): Promise<WeatherData> {
   } catch (err) {
     console.error("Error fetching weather data:", err);
     throw err;
+  }
+}
+
+async function getCitySuggestions(query: string): Promise<CitySuggestion[]> {
+  try {
+    const response = await fetch(
+      `${URL}/cities/suggestions?query=${encodeURIComponent(query)}`,
+    );
+    const data = await response.json();
+    return data as CitySuggestion[];
+  } catch (err) {
+    console.error("Error fetching city suggestions:", err);
+    return [];
   }
 }
 
@@ -29,4 +51,4 @@ async function getPoetryData(keyword: string): Promise<PoemData> {
   }
 }
 
-export { getWeatherData, getPoetryData };
+export { getWeatherData, getPoetryData, getCitySuggestions };
