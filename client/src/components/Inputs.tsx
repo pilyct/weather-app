@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { BiSearch } from "react-icons/bi";
-import { getCitySuggestions, CitySuggestion } from "../services/api-service";
-import type { Units } from "../types";
+import { getCitySuggestions } from "../services/api-service";
+import type { Units, CitySuggestion } from "../types";
 
 export default function Inputs({
   setCity,
