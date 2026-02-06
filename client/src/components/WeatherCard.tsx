@@ -22,7 +22,7 @@ const WeatherCard: React.FC<WeatherProps> = ({
     <div className="w-full rounded-2xl border-2 border-slate-100/5 bg-gradient-to-br px-6 pt-5 pb-6 shadow-xl backdrop-blur-2xl">
       <div className="flex flex-col items-center justify-center py-4">
         <img
-          src={require("../nimbus.png")}
+          src="/nimbus.png"
           alt="logo"
           className="h-20 w-20 object-contain sm:h-24 sm:w-24"
         />
