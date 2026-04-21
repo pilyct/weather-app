@@ -89,175 +89,71 @@ const formatBackground = (
   }
 };
 
-// NEW: Interface for gradient configuration
 interface GradientConfig {
   useGradient: boolean;
   gradientId?: string;
   color: string;
-  stops?: Array<{ offset: string; color: string }>;
+  stops?: Array<{ offset: string; color: string; opacity: number }>;
 }
 
-// NEW: Helper to analyze temperature distribution
-const analyzeTemperatures = (
-  data: ChartDataHourly[] | ChartDataDaily[] | null | undefined,
-  units: "metric" | "imperial",
-) => {
-  if (!data || data.length === 0) return null;
-
-  const threshold = units === "metric" ? 19 : 66;
-  const temperatures = data.map((d) =>
-    units === "metric" ? d.temp : convertCelsiusToFahrenheit(d.temp),
-  );
-
-  const minTemp = Math.min(...temperatures);
-  const maxTemp = Math.max(...temperatures);
-  const averageTemp =
-    temperatures.reduce((sum, temp) => sum + temp, 0) / temperatures.length;
-  const tempRange = maxTemp - minTemp;
-
-  return { minTemp, maxTemp, averageTemp, tempRange, threshold };
+// Maps a celsius value to a hex color on a cold→warm spectrum
+const tempToColor = (celsius: number): string => {
+  if (celsius <= 0)  return "#60d5f8"; // icy blue
+  if (celsius <= 10) return "#7dd4e8"; // light blue
+  if (celsius <= 18) return "#a8dcc7"; // mint
+  if (celsius <= 24) return "#f5c842"; // warm yellow
+  if (celsius <= 30) return "#f59642"; // orange
+  return "#f56342";                     // hot red-orange
 };
 
-// NEW: Enhanced fill function with gradient support
+const buildGradientStops = (
+  data: ChartDataHourly[] | ChartDataDaily[],
+  units: "metric" | "imperial",
+  opacity: number,
+): Array<{ offset: string; color: string; opacity: number }> => {
+  const n = data.length;
+  return data.map((d, i) => {
+    const celsius = units === "imperial" ? (d.temp - 32) * (5 / 9) : d.temp;
+    const offset = n === 1 ? "0%" : `${Math.round((i / (n - 1)) * 100)}%`;
+    return { offset, color: tempToColor(celsius), opacity };
+  });
+};
+
 const formatAreaFillEnhanced = (
   data: ChartDataHourly[] | ChartDataDaily[] | null | undefined,
   units: "metric" | "imperial",
 ): GradientConfig => {
-  const analysis = analyzeTemperatures(data, units);
-
-  if (!analysis) {
-    return { useGradient: false, color: "rgba(255, 255, 255, 0.4)" };
+  if (!data || data.length === 0) {
+    return { useGradient: false, color: "#ffffff66" };
   }
 
-  const { minTemp, maxTemp, averageTemp, tempRange, threshold } = analysis;
-
-  // If temperature range is very small (< 2 degrees), use solid color
-  if (tempRange < 2) {
-    const color =
-      averageTemp <= threshold
-        ? "rgba(77, 208, 225, 0.4)"
-        : "rgba(255, 204, 128, 0.4)";
-    return { useGradient: false, color };
-  }
-
-  // Generate unique gradient ID
-  const gradientId = `fill-gradient-${Math.round(minTemp)}-${Math.round(maxTemp)}`;
-
-  const coldColor = "rgba(77, 208, 225, 0.4)";
-  const warmColor = "rgba(255, 204, 128, 0.4)";
-
-  // All warm temperatures
-  if (minTemp > threshold) {
-    return {
-      useGradient: true,
-      gradientId,
-      color: `url(#${gradientId})`,
-      stops: [
-        { offset: "0%", color: "rgba(255, 180, 100, 0.4)" },
-        { offset: "100%", color: warmColor },
-      ],
-    };
-  }
-
-  // All cold temperatures
-  if (maxTemp < threshold) {
-    return {
-      useGradient: true,
-      gradientId,
-      color: `url(#${gradientId})`,
-      stops: [
-        { offset: "0%", color: coldColor },
-        { offset: "100%", color: "rgba(100, 220, 235, 0.4)" },
-      ],
-    };
-  }
-
-  // Mixed temperatures - create gradient from cold to warm
-  const thresholdPosition = Math.max(
-    0,
-    Math.min(100, ((threshold - minTemp) / tempRange) * 100),
-  );
+  const gradientId = `fill-${data.map((d) => Math.round(d.temp)).join("-")}`;
+  const stops = buildGradientStops(data, units, 0.45);
 
   return {
     useGradient: true,
     gradientId,
     color: `url(#${gradientId})`,
-    stops: [
-      { offset: "0%", color: coldColor },
-      { offset: `${thresholdPosition}%`, color: "rgba(150, 206, 227, 0.4)" },
-      { offset: "100%", color: warmColor },
-    ],
+    stops,
   };
 };
 
-// NEW: Enhanced stroke function with gradient support
 const formatAreaStrokeEnhanced = (
   data: ChartDataHourly[] | ChartDataDaily[] | null | undefined,
   units: "metric" | "imperial",
 ): GradientConfig => {
-  const analysis = analyzeTemperatures(data, units);
-
-  if (!analysis) {
-    return { useGradient: false, color: "rgba(255, 255, 255, 1)" };
+  if (!data || data.length === 0) {
+    return { useGradient: false, color: "#ffffff" };
   }
 
-  const { minTemp, maxTemp, averageTemp, tempRange, threshold } = analysis;
-
-  // If temperature range is very small, use solid color
-  if (tempRange < 2) {
-    const color =
-      averageTemp <= threshold
-        ? "rgba(77, 208, 225, 1)"
-        : "rgba(255, 204, 128, 1)";
-    return { useGradient: false, color };
-  }
-
-  const gradientId = `stroke-gradient-${Math.round(minTemp)}-${Math.round(maxTemp)}`;
-
-  const coldColor = "rgba(77, 208, 225, 1)";
-  const warmColor = "rgba(255, 204, 128, 1)";
-
-  // All warm temperatures
-  if (minTemp > threshold) {
-    return {
-      useGradient: true,
-      gradientId,
-      color: `url(#${gradientId})`,
-      stops: [
-        { offset: "0%", color: "rgba(255, 180, 100, 1)" },
-        { offset: "100%", color: warmColor },
-      ],
-    };
-  }
-
-  // All cold temperatures
-  if (maxTemp < threshold) {
-    return {
-      useGradient: true,
-      gradientId,
-      color: `url(#${gradientId})`,
-      stops: [
-        { offset: "0%", color: coldColor },
-        { offset: "100%", color: "rgba(100, 220, 235, 1)" },
-      ],
-    };
-  }
-
-  // Mixed temperatures
-  const thresholdPosition = Math.max(
-    0,
-    Math.min(100, ((threshold - minTemp) / tempRange) * 100),
-  );
+  const gradientId = `stroke-${data.map((d) => Math.round(d.temp)).join("-")}`;
+  const stops = buildGradientStops(data, units, 1);
 
   return {
     useGradient: true,
     gradientId,
     color: `url(#${gradientId})`,
-    stops: [
-      { offset: "0%", color: coldColor },
-      { offset: `${thresholdPosition}%`, color: "rgba(150, 206, 227, 1)" },
-      { offset: "100%", color: warmColor },
-    ],
+    stops,
   };
 };
 
