@@ -160,7 +160,7 @@ export default function Inputs({
             disabled={geoLoading}
             className="flex items-center justify-center px-3 py-2 text-white/90 hover:bg-white/10 disabled:opacity-50"
             aria-label="Use my location"
-            title="Get weather for my current location"
+            title="Get weather for your current location"
           >
             <BiCurrentLocation
               size={22}
