@@ -81,6 +81,21 @@ export default function Inputs({
     setGeoError(null);
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        if (
+          isNaN(position.coords.latitude) ||
+          position.coords.latitude < -90 ||
+          position.coords.latitude > 90
+        ) {
+          throw new Error("Invalid latitude value");
+        }
+
+        if (
+          isNaN(position.coords.longitude) ||
+          position.coords.longitude < -180 ||
+          position.coords.longitude > 180
+        ) {
+          throw new Error("Invalid longitude value");
+        }
         setCoords({
           lat: position.coords.latitude,
           lon: position.coords.longitude,

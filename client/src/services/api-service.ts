@@ -49,6 +49,10 @@ async function getCitySuggestions(query: string): Promise<CitySuggestion[]> {
   if (!query) {
     throw new Error("Invalid query value");
   }
+
+  if (!/^[\p{L}\s\-'.]+$/u.test(query)) {
+    throw new Error("Invalid query value");
+  }
   try {
     const response = await fetch(
       `${URL}/cities/suggestions?query=${encodeURIComponent(query)}`,
@@ -63,6 +67,9 @@ async function getCitySuggestions(query: string): Promise<CitySuggestion[]> {
 
 async function getPoetryData(keyword: string): Promise<PoemData> {
   if (!keyword) {
+    throw new Error("Invalid keyword value");
+  }
+  if (!/^[\p{L}\s\-'.]+$/u.test(keyword)) {
     throw new Error("Invalid keyword value");
   }
   try {
