@@ -27,11 +27,11 @@ async function getWeatherDataByCoords(
   lat: number,
   lon: number,
 ): Promise<WeatherData> {
-  if (isNaN(lat) || lat < -90 || lat > 90) {
+  if (Number.isNaN(lat) || lat < -90 || lat > 90) {
     throw new Error("Invalid latitude value");
   }
 
-  if (isNaN(lon) || lon < -180 || lon > 180) {
+  if (Number.isNaN(lon) || lon < -180 || lon > 180) {
     throw new Error("Invalid longitude value");
   }
 
