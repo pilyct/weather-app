@@ -79,6 +79,7 @@ export default function Inputs({
     }
     setGeoLoading(true);
     setGeoError(null);
+    // Geolocation is required to fetch weather data for the user's current location
     navigator.geolocation.getCurrentPosition(
       (position) => {
         if (
