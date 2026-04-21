@@ -4,6 +4,7 @@ import { ChartDataHourly, ChartDataDaily } from "../types";
 interface GradientStop {
   offset: string;
   color: string;
+  opacity: number;
 }
 
 interface TemperatureAreaChartProps {
@@ -41,6 +42,7 @@ const TemperatureAreaChart: React.FC<TemperatureAreaChartProps> = ({
                     key={index}
                     offset={stop.offset}
                     stopColor={stop.color}
+                    stopOpacity={stop.opacity}
                   />
                 ))}
               </linearGradient>
@@ -58,6 +60,7 @@ const TemperatureAreaChart: React.FC<TemperatureAreaChartProps> = ({
                     key={index}
                     offset={stop.offset}
                     stopColor={stop.color}
+                    stopOpacity={stop.opacity}
                   />
                 ))}
               </linearGradient>
