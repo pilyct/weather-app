@@ -8,9 +8,9 @@ export default function Inputs({
   setCoords,
   setUnits,
 }: {
-  setCity: (city: string) => void;
-  setCoords: (coords: { lat: number; lon: number }) => void;
-  setUnits: (units: Units) => void;
+  readonly setCity: (city: string) => void;
+  readonly setCoords: (coords: { lat: number; lon: number }) => void;
+  readonly setUnits: (units: Units) => void;
 }) {
   const [cityName, setCityName] = useState("");
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
@@ -54,7 +54,7 @@ export default function Inputs({
   const handleSelectSuggestion = (suggestion: CitySuggestion) => {
     setGeoError(null);
     if (!suggestion.name) {
-      throw Error("wrong suggestion.name");
+      throw new Error("wrong suggestion.name");
     }
     setCity(suggestion.name);
     setCityName("");
@@ -83,7 +83,7 @@ export default function Inputs({
     navigator.geolocation.getCurrentPosition(
       (position) => {
         if (
-          isNaN(position.coords.latitude) ||
+          Number.isNaN(position.coords.latitude) ||
           position.coords.latitude < -90 ||
           position.coords.latitude > 90
         ) {
@@ -91,7 +91,7 @@ export default function Inputs({
         }
 
         if (
-          isNaN(position.coords.longitude) ||
+          Number.isNaN(position.coords.longitude) ||
           position.coords.longitude < -180 ||
           position.coords.longitude > 180
         ) {
@@ -160,7 +160,7 @@ export default function Inputs({
             disabled={geoLoading}
             className="flex items-center justify-center px-3 py-2 text-white/90 hover:bg-white/10 disabled:opacity-50"
             aria-label="Use my location"
-            title="Use my location"
+            title="Get weather for my current location"
           >
             <BiCurrentLocation
               size={22}

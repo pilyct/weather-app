@@ -110,9 +110,9 @@ function Meta({
   label,
   value,
 }: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
+  readonly icon: React.ReactNode;
+  readonly label: string;
+  readonly value: string;
 }) {
   return (
     <div className="flex items-center gap-1">

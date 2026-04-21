@@ -7,7 +7,7 @@ interface City {
 export default function TopButtons({
   setCity,
 }: {
-  setCity: (city: string) => void;
+  readonly setCity: (city: string) => void;
 }) {
   const cities: City[] = [
     { id: 1, title: "London", country_code: "GB" },
