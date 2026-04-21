@@ -130,9 +130,7 @@ async function buildWeatherResponse(
 }
 
 async function reverseGeocode(lat: number, lon: number): Promise<string> {
-  const reverseUrl = new URL(
-    "http://api.openweathermap.org/geo/1.0/reverse",
-  );
+  const reverseUrl = new URL(openWeatherMap.GEO_REVERSE_URL);
   reverseUrl.search = new URLSearchParams({
     lat: lat.toString(),
     lon: lon.toString(),
