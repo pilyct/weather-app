@@ -68,31 +68,7 @@ async function getWeatherData(req: Request, res: Response): Promise<void> {
     }
 
     const { lat, lon } = geoData;
-
-    const weatherData = await fetchWeatherData(lat, lon);
-    const forecastData = await fetchForecastData(lat, lon);
-
-    const formattedSunrise = formatTime(
-      weatherData.sys.sunrise,
-      weatherData.timezone,
-    );
-    const formattedSunset = formatTime(
-      weatherData.sys.sunset,
-      weatherData.timezone,
-    );
-    const localTime = formatLocalTime(weatherData.timezone);
-
-    const responseData = {
-      ...filterWeatherData(
-        city,
-        weatherData,
-        formattedSunrise,
-        formattedSunset,
-        localTime,
-      ),
-      ...filterForecastData(forecastData, weatherData.timezone),
-    };
-
+    const responseData = await buildWeatherResponse(city, lat, lon);
     res.json(responseData);
   } catch (error) {
     console.error(error);
@@ -100,6 +76,73 @@ async function getWeatherData(req: Request, res: Response): Promise<void> {
       .status(500)
       .json({ error: "Unable to fetch weather data, please try again" });
   }
+}
+
+async function getWeatherByCoords(req: Request, res: Response): Promise<void> {
+  try {
+    const lat = parseFloat(req.query.lat as string);
+    const lon = parseFloat(req.query.lon as string);
+
+    if (isNaN(lat) || isNaN(lon)) {
+      res.status(400).json({ error: "Invalid coordinates" });
+      return;
+    }
+
+    const cityName = await reverseGeocode(lat, lon);
+    const responseData = await buildWeatherResponse(cityName, lat, lon);
+    res.json(responseData);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Unable to fetch weather data, please try again" });
+  }
+}
+
+async function buildWeatherResponse(
+  city: string,
+  lat: number,
+  lon: number,
+): Promise<object> {
+  const weatherData = await fetchWeatherData(lat, lon);
+  const forecastData = await fetchForecastData(lat, lon);
+
+  const formattedSunrise = formatTime(
+    weatherData.sys.sunrise,
+    weatherData.timezone,
+  );
+  const formattedSunset = formatTime(
+    weatherData.sys.sunset,
+    weatherData.timezone,
+  );
+  const localTime = formatLocalTime(weatherData.timezone);
+
+  return {
+    ...filterWeatherData(
+      city,
+      weatherData,
+      formattedSunrise,
+      formattedSunset,
+      localTime,
+    ),
+    ...filterForecastData(forecastData, weatherData.timezone),
+  };
+}
+
+async function reverseGeocode(lat: number, lon: number): Promise<string> {
+  const reverseUrl = new URL(
+    "http://api.openweathermap.org/geo/1.0/reverse",
+  );
+  reverseUrl.search = new URLSearchParams({
+    lat: lat.toString(),
+    lon: lon.toString(),
+    limit: "1",
+    appid: openWeatherMap.API_KEY || "",
+  }).toString();
+
+  const response = await fetch(reverseUrl.toString());
+  const data = await response.json();
+  return data.length ? data[0].name : "Your Location";
 }
 
 async function fetchGeoData(
@@ -291,4 +334,4 @@ async function getCitySuggestions(req: Request, res: Response): Promise<void> {
   }
 }
 
-export { getWeatherData, getCitySuggestions };
+export { getWeatherData, getWeatherByCoords, getCitySuggestions };

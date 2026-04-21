@@ -1,6 +1,6 @@
 import "./App.css";
-import { useState, useEffect, useCallback } from "react";
-import { getWeatherData, getPoetryData } from "./services/api-service";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { getWeatherData, getWeatherByCoords, getPoetryData } from "./services/api-service";
 import { formatBackground } from "./utils/styleFunctions";
 import WeatherCard from "./components/WeatherCard";
 import ForecastDaily from "./components/ForecastDaily";
@@ -19,6 +19,7 @@ type AppState = {
 const App: React.FC = () => {
   const [city, setCity] = useState("Berlin");
   const [units, setUnits] = useState<"metric" | "imperial">("metric");
+  const skipCityFetch = useRef(true);
   const [state, setState] = useState<AppState>({
     weather: null,
     poem: null,
@@ -26,26 +27,29 @@ const App: React.FC = () => {
     error: null,
   });
 
+  const processWeatherData = useCallback(async (weatherData: any) => {
+    const keyword =
+      weatherData.weather_description.split(/\s+/)[1] ||
+      weatherData.weather_description.split(/\s+/)[0] ||
+      "weather";
+
+    const poemData = await getPoetryData(keyword).catch(() => null);
+
+    setState({
+      weather: weatherData,
+      poem: poemData,
+      loading: false,
+      error: null,
+    });
+  }, []);
+
   const fetchData = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
       const weatherData = await getWeatherData(city);
       if (!weatherData) throw new Error("City not found");
-
-      const keyword =
-        weatherData.weather_description.split(/\s+/)[1] ||
-        weatherData.weather_description.split(/\s+/)[0] ||
-        "weather";
-
-      const poemData = await getPoetryData(keyword).catch(() => null);
-
-      setState({
-        weather: weatherData,
-        poem: poemData,
-        loading: false,
-        error: null,
-      });
+      await processWeatherData(weatherData);
     } catch (error) {
       setState({
         weather: null,
@@ -54,9 +58,46 @@ const App: React.FC = () => {
         error: error instanceof Error ? error.message : "An error occurred",
       });
     }
-  }, [city]);
+  }, [city, processWeatherData]);
 
   useEffect(() => {
+    if (!navigator.geolocation) {
+      fetchData();
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        setState((prev) => ({ ...prev, loading: true, error: null }));
+        try {
+          const { latitude, longitude } = position.coords;
+          const weatherData = await getWeatherByCoords(latitude, longitude);
+          if (!weatherData) throw new Error("Location not found");
+          skipCityFetch.current = true;
+          setCity(weatherData.city_name);
+          await processWeatherData(weatherData);
+        } catch (error) {
+          setState({
+            weather: null,
+            poem: null,
+            loading: false,
+            error: error instanceof Error ? error.message : "An error occurred",
+          });
+        }
+      },
+      () => {
+        fetchData();
+      },
+      { timeout: 5000 },
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (skipCityFetch.current) {
+      skipCityFetch.current = false;
+      return;
+    }
     fetchData();
   }, [fetchData]);
 

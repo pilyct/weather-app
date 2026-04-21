@@ -13,6 +13,20 @@ async function getWeatherData(city: string = "Berlin"): Promise<WeatherData> {
   }
 }
 
+async function getWeatherByCoords(
+  lat: number,
+  lon: number,
+): Promise<WeatherData> {
+  try {
+    const response = await fetch(`${URL}/weather/location?lat=${lat}&lon=${lon}`);
+    const data = await response.json();
+    return data as WeatherData;
+  } catch (err) {
+    console.error("Error fetching weather by coordinates:", err);
+    throw err;
+  }
+}
+
 async function getCitySuggestions(query: string): Promise<CitySuggestion[]> {
   try {
     const response = await fetch(
@@ -43,4 +57,4 @@ async function getPoetryData(keyword: string): Promise<PoemData> {
   }
 }
 
-export { getWeatherData, getPoetryData, getCitySuggestions };
+export { getWeatherData, getWeatherByCoords, getPoetryData, getCitySuggestions };
