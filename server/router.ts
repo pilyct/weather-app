@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getWeatherData,
+  getWeatherByCoords,
   getCitySuggestions,
 } from "./controllers/weatherController";
 import { getPoemData } from "./controllers/poetryController";
@@ -8,6 +9,7 @@ import { getPoemData } from "./controllers/poetryController";
 const router = Router();
 
 router.get("/weather", getWeatherData);
+router.get("/weather/location", getWeatherByCoords);
 router.get("/cities/suggestions", getCitySuggestions);
 router.get("/poem", getPoemData);
 
