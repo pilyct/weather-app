@@ -6,6 +6,11 @@ async function getWeatherData(city: string): Promise<WeatherData> {
   if (!city) {
     throw new Error("Invalid city value");
   }
+
+  if (!/^[\p{L}\s\-'.]+$/u.test(city)) {
+    throw new Error("Invalid city value");
+  }
+
   try {
     const response = await fetch(
       `${URL}/weather?city=${encodeURIComponent(city)}`,
@@ -41,6 +46,9 @@ async function getWeatherDataByCoords(
 }
 
 async function getCitySuggestions(query: string): Promise<CitySuggestion[]> {
+  if (!query) {
+    throw new Error("Invalid query value");
+  }
   try {
     const response = await fetch(
       `${URL}/cities/suggestions?query=${encodeURIComponent(query)}`,
@@ -54,6 +62,9 @@ async function getCitySuggestions(query: string): Promise<CitySuggestion[]> {
 }
 
 async function getPoetryData(keyword: string): Promise<PoemData> {
+  if (!keyword) {
+    throw new Error("Invalid keyword value");
+  }
   try {
     const response = await fetch(
       `${URL}/poem?keyword=${encodeURIComponent(keyword)}`,
