@@ -37,9 +37,9 @@ const TemperatureAreaChart: React.FC<TemperatureAreaChartProps> = ({
           <defs>
             {fillGradient && (
               <linearGradient id={fillGradient.id} x1="0" y1="0" x2="1" y2="0">
-                {fillGradient.stops.map((stop, index) => (
+                {fillGradient.stops.map((stop) => (
                   <stop
-                    key={index}
+                    key={stop.offset}
                     offset={stop.offset}
                     stopColor={stop.color}
                     stopOpacity={stop.opacity}
@@ -55,9 +55,9 @@ const TemperatureAreaChart: React.FC<TemperatureAreaChartProps> = ({
                 x2="1"
                 y2="0"
               >
-                {strokeGradient.stops.map((stop, index) => (
+                {strokeGradient.stops.map((stop) => (
                   <stop
-                    key={index}
+                    key={stop.offset}
                     offset={stop.offset}
                     stopColor={stop.color}
                     stopOpacity={stop.opacity}

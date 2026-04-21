@@ -29,7 +29,7 @@ const ForecastDaily: React.FC<ForecastDailyProps> = ({ weather, units }) => {
     }));
   };
 
-  if (!weather || !weather.forecast_day || chartData.length === 0) {
+  if (!weather?.forecast_day || chartData.length === 0) {
     return <div>Loading...</div>;
   }
 
@@ -45,7 +45,7 @@ const ForecastDaily: React.FC<ForecastDailyProps> = ({ weather, units }) => {
       <hr className="my-2 border-white/20" />
 
       {/* Chart background layer */}
-      <div className="pointer-events-none absolute left-0 right-0 top-[70px] h-30 px-3 sm:top-[90px] md:top-[90px]">
+      <div className="pointer-events-none absolute left-0 right-0 top-17.5 h-30 px-3 sm:top-22.5 md:top-22.5">
         <TemperatureAreaChart
           data={chartData}
           strokeColor={strokeConfig.color}
@@ -71,9 +71,9 @@ const ForecastDaily: React.FC<ForecastDailyProps> = ({ weather, units }) => {
 
       {/* Forecast items */}
       <div className="relative z-10 mt-2 flex items-center justify-between text-white">
-        {chartData.map((data, index) => (
+        {chartData.map((data) => (
           <div
-            key={index}
+            key={data.day}
             className="flex flex-col items-center justify-center gap-1"
           >
             <p className="text-xs font-light sm:text-sm">{data.day}</p>

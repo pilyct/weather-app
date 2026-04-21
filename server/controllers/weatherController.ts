@@ -253,10 +253,10 @@ function filterForecastData(
 
 async function getWeatherByCoords(req: Request, res: Response): Promise<void> {
   try {
-    const lat = parseFloat(req.query.lat as string);
-    const lon = parseFloat(req.query.lon as string);
+    const lat = Number.parseFloat(req.query.lat as string);
+    const lon = Number.parseFloat(req.query.lon as string);
 
-    if (isNaN(lat) || isNaN(lon)) {
+    if (Number.isNaN(lat) || Number.isNaN(lon)) {
       res.status(400).json({ error: "Invalid coordinates" });
       return;
     }

@@ -12,7 +12,7 @@ interface ForecastHourlyProps {
 }
 
 const ForecastHourly: React.FC<ForecastHourlyProps> = ({ weather, units }) => {
-  if (!weather || !weather.forecast_time) {
+  if (!weather?.forecast_time) {
     return <div>Loading...</div>;
   }
 
@@ -37,7 +37,7 @@ const ForecastHourly: React.FC<ForecastHourlyProps> = ({ weather, units }) => {
       <hr className="my-2 border-white/20" />
 
       {/* Chart background layer */}
-      <div className="pointer-events-none absolute left-0 right-0 top-[70px] h-30 px-3 sm:top-[90px] md:top-[90px]">
+      <div className="pointer-events-none absolute left-0 right-0 top-17.5 h-30 px-3 sm:top-22.5 md:top-22.5">
         <TemperatureAreaChart
           data={chartData}
           strokeColor={strokeConfig.color}
@@ -63,9 +63,9 @@ const ForecastHourly: React.FC<ForecastHourlyProps> = ({ weather, units }) => {
 
       {/* Forecast items */}
       <div className="relative z-10 mt-2 flex items-center justify-between text-white">
-        {forecastData.map((data, index) => (
+        {forecastData.map((data) => (
           <div
-            key={index}
+            key={data.time}
             className="flex flex-col items-center justify-center gap-1"
           >
             <p className="text-xs font-light sm:text-sm">{data.time}</p>
