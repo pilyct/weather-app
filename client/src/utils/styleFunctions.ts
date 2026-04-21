@@ -18,8 +18,8 @@ const formatBackground = (
   const timeString = timeParts[5];
   const ampm = timeParts[6];
 
-  let hours = parseInt(timeString.split(":")[0], 10);
-  const minutes = parseInt(timeString.split(":")[1], 10);
+  let hours = Number.parseInt(timeString.split(":")[0], 10);
+  const minutes = Number.parseInt(timeString.split(":")[1], 10);
 
   if (ampm === "PM" && hours < 12) {
     hours += 12;
@@ -98,12 +98,12 @@ interface GradientConfig {
 
 // Maps a celsius value to a hex color on a cold→warm spectrum
 const tempToColor = (celsius: number): string => {
-  if (celsius <= 0)  return "#60d5f8"; // icy blue
+  if (celsius <= 0) return "#60d5f8"; // icy blue
   if (celsius <= 10) return "#7dd4e8"; // light blue
   if (celsius <= 18) return "#a8dcc7"; // mint
   if (celsius <= 24) return "#f5c842"; // warm yellow
   if (celsius <= 30) return "#f59642"; // orange
-  return "#f56342";                     // hot red-orange
+  return "#f56342"; // hot red-orange
 };
 
 const buildGradientStops = (

@@ -71,49 +71,57 @@ const App: React.FC = () => {
 
   const { weather, poem, loading, error } = state;
 
+  let content;
+  if (loading && !weather) {
+    content = (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  } else if (error) {
+    content = (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="rounded-lg bg-white/90 p-8 text-center shadow-lg backdrop-blur-sm">
+          <p className="mb-4 text-lg font-semibold text-red-600">{error}</p>
+          <button
+            onClick={fetchData}
+            className="rounded-md bg-blue-500 px-6 py-2 text-white hover:bg-blue-600"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  } else {
+    content = (
+      <div className="mx-auto w-full max-w-350 px-4 py-8 lg:px-6 xl:px-8">
+        <div className="flex flex-col items-center justify-center gap-4 lg:flex-row lg:items-start">
+          <div className="w-full max-w-lg lg:max-w-xl">
+            <WeatherCard
+              setCity={(c) => {
+                setCoords(null);
+                setCity(c);
+              }}
+              setCoords={setCoords}
+              units={units}
+              setUnits={setUnits}
+              weather={weather}
+            />
+          </div>
+          <div className="flex w-full max-w-md flex-col gap-4 lg:max-w-lg">
+            <ForecastHourly weather={weather} units={units} />
+            <ForecastDaily weather={weather} units={units} />
+            {poem && <WeatherPoem poemData={poem} />}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen w-full ${formatBackground(weather)}`}>
       <div className="pointer-events-none fixed inset-0 animation-zoomInOut" />
-
-      {loading && !weather ? (
-        <div className="flex min-h-screen items-center justify-center">
-          <Spinner />
-        </div>
-      ) : error ? (
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="rounded-lg bg-white/90 p-8 text-center shadow-lg backdrop-blur-sm">
-            <p className="mb-4 text-lg font-semibold text-red-600">{error}</p>
-            <button
-              onClick={fetchData}
-              className="rounded-md bg-blue-500 px-6 py-2 text-white hover:bg-blue-600"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="mx-auto w-full max-w-350 px-4 py-8 lg:px-6 xl:px-8">
-          <div className="flex flex-col items-center justify-center gap-4 lg:flex-row lg:items-start">
-            <div className="w-full max-w-lg lg:max-w-xl">
-              <WeatherCard
-                setCity={(c) => {
-                  setCoords(null);
-                  setCity(c);
-                }}
-                setCoords={setCoords}
-                units={units}
-                setUnits={setUnits}
-                weather={weather}
-              />
-            </div>
-            <div className="flex w-full max-w-md flex-col gap-4 lg:max-w-lg">
-              <ForecastHourly weather={weather} units={units} />
-              <ForecastDaily weather={weather} units={units} />
-              {poem && <WeatherPoem poemData={poem} />}
-            </div>
-          </div>
-        </div>
-      )}
+      {content}
     </div>
   );
 };

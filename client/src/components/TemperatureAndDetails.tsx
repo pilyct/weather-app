@@ -48,7 +48,7 @@ const TemperatureAndDetails: React.FC<TemperatureAndDetailsProps> = ({
         <img
           src={iconUrlFromCode(weather.icon)}
           alt="weather icon"
-          className="w-[4.5rem] sm:w-32  md:w-40"
+          className="w-18 sm:w-32  md:w-40"
         />
 
         <p className="text-2xl sm:text-3xl md:text-5xl">
