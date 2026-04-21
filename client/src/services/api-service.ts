@@ -13,16 +13,16 @@ async function getWeatherData(city: string = "Berlin"): Promise<WeatherData> {
   }
 }
 
-async function getWeatherByCoords(
+async function getWeatherDataByCoords(
   lat: number,
   lon: number,
 ): Promise<WeatherData> {
   try {
-    const response = await fetch(`${URL}/weather/location?lat=${lat}&lon=${lon}`);
+    const response = await fetch(`${URL}/weather/coords?lat=${lat}&lon=${lon}`);
     const data = await response.json();
     return data as WeatherData;
   } catch (err) {
-    console.error("Error fetching weather by coordinates:", err);
+    console.error("Error fetching weather data by coords:", err);
     throw err;
   }
 }
@@ -57,4 +57,9 @@ async function getPoetryData(keyword: string): Promise<PoemData> {
   }
 }
 
-export { getWeatherData, getWeatherByCoords, getPoetryData, getCitySuggestions };
+export {
+  getWeatherData,
+  getWeatherDataByCoords,
+  getPoetryData,
+  getCitySuggestions,
+};

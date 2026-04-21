@@ -7,6 +7,7 @@ import { WeatherData } from "../types";
 
 interface WeatherProps {
   setCity: (city: string) => void;
+  setCoords: (coords: { lat: number; lon: number }) => void;
   units: "metric" | "imperial";
   setUnits: (units: "metric" | "imperial") => void;
   weather: WeatherData | null;
@@ -14,6 +15,7 @@ interface WeatherProps {
 
 const WeatherCard: React.FC<WeatherProps> = ({
   setCity,
+  setCoords,
   units,
   setUnits,
   weather,
@@ -33,7 +35,7 @@ const WeatherCard: React.FC<WeatherProps> = ({
 
       <div className="space-y-4">
         <TopButtons setCity={setCity} />
-        <Inputs setCity={setCity} setUnits={setUnits} />
+        <Inputs setCity={setCity} setCoords={setCoords} setUnits={setUnits} />
 
         {weather && (
           <>
