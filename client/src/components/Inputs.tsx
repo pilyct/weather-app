@@ -1,19 +1,23 @@
 import { useState, useEffect, useRef } from "react";
-import { BiSearch } from "react-icons/bi";
+import { BiSearch, BiCurrentLocation } from "react-icons/bi";
 import { getCitySuggestions } from "../services/api-service";
 import type { Units, CitySuggestion } from "../types";
 
 export default function Inputs({
   setCity,
+  setCoords,
   setUnits,
 }: {
   setCity: (city: string) => void;
+  setCoords: (coords: { lat: number; lon: number }) => void;
   setUnits: (units: Units) => void;
 }) {
   const [cityName, setCityName] = useState("");
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Debounced search for suggestions
@@ -48,6 +52,7 @@ export default function Inputs({
   }, []);
 
   const handleSelectSuggestion = (suggestion: CitySuggestion) => {
+    setGeoError(null);
     setCity(suggestion.name);
     setCityName("");
     setSuggestions([]);
@@ -57,10 +62,42 @@ export default function Inputs({
   const handleSearchClick = () => {
     const trimmed = cityName.trim();
     if (trimmed) {
+      setGeoError(null);
       setCity(trimmed);
       setCityName("");
       setShowSuggestions(false);
     }
+  };
+
+  const handleGeolocate = () => {
+    if (!navigator.geolocation) {
+      setGeoError("Geolocation is not supported by your browser.");
+      return;
+    }
+    setGeoLoading(true);
+    setGeoError(null);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCoords({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        });
+        setGeoLoading(false);
+      },
+      (err) => {
+        setGeoLoading(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          setGeoError(
+            "Location access denied. Please allow it in your browser settings.",
+          );
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          setGeoError("Location unavailable. Try searching manually.");
+        } else {
+          setGeoError("Could not get your location. Try searching manually.");
+        }
+      },
+      { timeout: 10000 },
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -100,6 +137,19 @@ export default function Inputs({
           />
           <button
             type="button"
+            onClick={handleGeolocate}
+            disabled={geoLoading}
+            className="flex items-center justify-center px-3 py-2 text-white/90 hover:bg-white/10 disabled:opacity-50"
+            aria-label="Use my location"
+            title="Use my location"
+          >
+            <BiCurrentLocation
+              size={22}
+              className={geoLoading ? "animate-spin" : ""}
+            />
+          </button>
+          <button
+            type="button"
             onClick={handleSearchClick}
             className="flex items-center justify-center px-3 py-2 text-white/90 hover:bg-white/10"
             aria-label="Search"
@@ -107,6 +157,7 @@ export default function Inputs({
             <BiSearch size={22} />
           </button>
         </div>
+        {geoError && <p className="mt-1 text-xs text-red-300">{geoError}</p>}
 
         {/* Suggestions dropdown */}
         {showSuggestions && suggestions.length > 0 && (
