@@ -53,6 +53,9 @@ export default function Inputs({
 
   const handleSelectSuggestion = (suggestion: CitySuggestion) => {
     setGeoError(null);
+    if (!suggestion.name) {
+      throw Error("wrong suggestion.name");
+    }
     setCity(suggestion.name);
     setCityName("");
     setSuggestions([]);
