@@ -119,9 +119,10 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen w-full ${formatBackground(weather)}`}>
+    <div className={`w-full`}>
+      <div className={`fixed inset-0 z-0 ${formatBackground(weather)}`} />
       <div className="pointer-events-none fixed inset-0 animation-zoomInOut" />
-      {content}
+      <div className="relative z-10">{content}</div>
     </div>
   );
 };
