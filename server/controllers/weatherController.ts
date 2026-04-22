@@ -165,7 +165,7 @@ function formatLocalTime(timezoneOffset: number): string {
     hour: "numeric",
     minute: "numeric",
   };
-  const utcTime = new Date().getTime() + new Date().getTimezoneOffset() * 60000;
+  const utcTime = Date.now() + new Date().getTimezoneOffset() * 60000;
   return new Date(utcTime + timezoneOffset * 1000).toLocaleString(
     "en-US",
     options,

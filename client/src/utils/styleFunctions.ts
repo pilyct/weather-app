@@ -7,14 +7,7 @@ type WeatherDataSubset = Pick<
 >;
 type ChartData = ChartDataHourly[] | ChartDataDaily[];
 
-const formatBackground = (
-  weather: WeatherDataSubset | null | undefined,
-): string => {
-  if (!weather) return "bg-gradient-to-b";
-
-  const description = weather.weather_description;
-  const localTime = weather.local_time;
-
+const getIsDayTime = (localTime: string): boolean => {
   const timeParts = localTime.split(" ");
   const timeString = timeParts[5];
   const ampm = timeParts[6];
@@ -34,40 +27,37 @@ const formatBackground = (
 
   const currentHour = currentDate.getHours();
   const isDaytime = currentHour >= 6 && currentHour < 20;
+  return isDaytime;
+};
 
-  if (isDaytime) {
-    if (description.includes("clear")) return "bg-day-clear";
-    if (description.includes("few clouds")) return "bg-day-few-clouds";
-    if (description.includes("scattered clouds"))
-      return "bg-day-scattered-clouds";
-    if (description.includes("broken clouds")) return "bg-day-broken-clouds";
-    if (description.includes("overcast clouds"))
-      return "bg-day-overcast-clouds";
-    if (description.includes("shower rain")) return "bg-day-shower-rain";
-    if (description.includes("rain") || description.includes("drizzle"))
-      return "bg-day-rain";
-    if (description.includes("storm")) return "bg-day-storm";
-    if (description.includes("mist")) return "bg-day-mist";
-    if (description.includes("snow")) return "bg-day-snow";
+const formatBackground = (
+  weather: WeatherDataSubset | null | undefined,
+): string => {
+  if (!weather) return "bg-gradient-to-b";
 
-    return "bg-day-default";
-  } else {
-    if (description.includes("clear")) return "bg-night-clear";
-    if (description.includes("few clouds")) return "bg-night-few-clouds";
-    if (description.includes("scattered clouds"))
-      return "bg-night-scattered-clouds";
-    if (description.includes("broken clouds")) return "bg-night-broken-clouds";
-    if (description.includes("overcast clouds"))
-      return "bg-night-overcast-clouds";
-    if (description.includes("shower rain") || description.includes("drizzle"))
-      return "bg-night-shower-rain";
-    if (description.includes("rain")) return "bg-night-rain";
-    if (description.includes("storm")) return "bg-night-storm";
-    if (description.includes("mist")) return "bg-night-mist";
-    if (description.includes("snow")) return "bg-night-snow";
+  const description = weather.weather_description;
+  const localTime = weather.local_time;
 
-    return "bg-night-default";
-  }
+  const isDaytime = getIsDayTime(localTime);
+
+  const period = isDaytime ? "day" : "night";
+
+  if (description.includes("clear")) return `bg-${period}-clear`;
+  if (description.includes("few clouds")) return `bg-${period}-few-clouds`;
+  if (description.includes("scattered clouds"))
+    return `bg-${period}-scattered-clouds`;
+  if (description.includes("broken clouds"))
+    return `bg-${period}-broken-clouds`;
+  if (description.includes("overcast clouds"))
+    return `bg-${period}-overcast-clouds`;
+  if (description.includes("shower rain")) return `bg-${period}-shower-rain`;
+  if (description.includes("rain") || description.includes("drizzle"))
+    return `bg-${period}-rain`;
+  if (description.includes("storm")) return `bg-${period}-storm`;
+  if (description.includes("mist")) return `bg-${period}-mist`;
+  if (description.includes("snow")) return `bg-${period}-snow`;
+
+  return `bg-${period}-default`;
 };
 
 interface GradientConfig {
