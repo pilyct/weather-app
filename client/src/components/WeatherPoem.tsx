@@ -30,7 +30,7 @@ const WeatherPoem: React.FC<WeatherPoemProps> = ({ poemData }) => {
     }
     const escapedWord = poemData.weatherWord.replace(
       /[.*+?^${}()|[\]\\]/g,
-      "\\$&",
+      String.raw`\$&`,
     );
 
     const regex = new RegExp(String.raw`\b(${escapedWord})`, "gi");
