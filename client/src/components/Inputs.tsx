@@ -141,7 +141,7 @@ export default function Inputs({
 
   return (
     <div className="my-4 mx-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="relative w-full" ref={dropdownRef}>
+      <div className="relative w-full group" ref={dropdownRef}>
         <div className="flex w-full items-center overflow-hidden rounded-xl border border-white/10 bg-white/10">
           <input
             value={cityName}
@@ -167,6 +167,7 @@ export default function Inputs({
               className={geoLoading ? "animate-spin" : ""}
             />
           </button>
+
           <button
             type="button"
             onClick={handleSearchClick}
@@ -175,6 +176,10 @@ export default function Inputs({
           >
             <BiSearch size={22} />
           </button>
+        </div>
+        {/* Tooltip */}
+        <div className="absolute z-20 right-16 bottom-full mb-2 w-56 rounded-md bg-black/80 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity">
+          Get weather for your location (optional), or search by city.
         </div>
         {geoError && <p className="mt-1 text-xs text-red-300">{geoError}</p>}
 
