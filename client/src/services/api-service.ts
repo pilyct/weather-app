@@ -60,8 +60,8 @@ async function getCitySuggestions(query: string): Promise<CitySuggestion[]> {
     const data = await response.json();
     return data as CitySuggestion[];
   } catch (err) {
-    console.error("Error fetching city suggestions");
-    return [];
+    console.error("Error fetching city suggestions", err);
+    throw err;
   }
 }
 

@@ -5,6 +5,7 @@ type WeatherDataSubset = Pick<
   WeatherData,
   "weather_description" | "local_time" | "temperature"
 >;
+type ChartData = ChartDataHourly[] | ChartDataDaily[];
 
 const formatBackground = (
   weather: WeatherDataSubset | null | undefined,
@@ -34,58 +35,38 @@ const formatBackground = (
   const currentHour = currentDate.getHours();
   const isDaytime = currentHour >= 6 && currentHour < 20;
 
-  switch (true) {
-    case isDaytime:
-      switch (true) {
-        case description.includes("clear"):
-          return "bg-day-clear";
-        case description.includes("few clouds"):
-          return "bg-day-few-clouds";
-        case description.includes("scattered clouds"):
-          return "bg-day-scattered-clouds";
-        case description.includes("broken clouds"):
-          return "bg-day-broken-clouds";
-        case description.includes("overcast clouds"):
-          return "bg-day-overcast-clouds";
-        case description.includes("shower rain"):
-          return "bg-day-shower-rain";
-        case description.includes("rain") || description.includes("drizzle"):
-          return "bg-day-rain";
-        case description.includes("storm"):
-          return "bg-day-storm";
-        case description.includes("mist"):
-          return "bg-day-mist";
-        case description.includes("snow"):
-          return "bg-day-snow";
-        default:
-          return "bg-day-default";
-      }
-    default:
-      switch (true) {
-        case description.includes("clear"):
-          return "bg-night-clear";
-        case description.includes("few clouds"):
-          return "bg-night-few-clouds";
-        case description.includes("scattered clouds"):
-          return "bg-night-scattered-clouds";
-        case description.includes("broken clouds"):
-          return "bg-night-broken-clouds";
-        case description.includes("overcast clouds"):
-          return "bg-night-overcast-clouds";
-        case description.includes("shower rain") ||
-          description.includes("drizzle"):
-          return "bg-night-shower-rain";
-        case description.includes("rain"):
-          return "bg-night-rain";
-        case description.includes("storm"):
-          return "bg-night-storm";
-        case description.includes("mist"):
-          return "bg-night-mist";
-        case description.includes("snow"):
-          return "bg-night-snow";
-        default:
-          return "bg-night-default";
-      }
+  if (isDaytime) {
+    if (description.includes("clear")) return "bg-day-clear";
+    if (description.includes("few clouds")) return "bg-day-few-clouds";
+    if (description.includes("scattered clouds"))
+      return "bg-day-scattered-clouds";
+    if (description.includes("broken clouds")) return "bg-day-broken-clouds";
+    if (description.includes("overcast clouds"))
+      return "bg-day-overcast-clouds";
+    if (description.includes("shower rain")) return "bg-day-shower-rain";
+    if (description.includes("rain") || description.includes("drizzle"))
+      return "bg-day-rain";
+    if (description.includes("storm")) return "bg-day-storm";
+    if (description.includes("mist")) return "bg-day-mist";
+    if (description.includes("snow")) return "bg-day-snow";
+
+    return "bg-day-default";
+  } else {
+    if (description.includes("clear")) return "bg-night-clear";
+    if (description.includes("few clouds")) return "bg-night-few-clouds";
+    if (description.includes("scattered clouds"))
+      return "bg-night-scattered-clouds";
+    if (description.includes("broken clouds")) return "bg-night-broken-clouds";
+    if (description.includes("overcast clouds"))
+      return "bg-night-overcast-clouds";
+    if (description.includes("shower rain") || description.includes("drizzle"))
+      return "bg-night-shower-rain";
+    if (description.includes("rain")) return "bg-night-rain";
+    if (description.includes("storm")) return "bg-night-storm";
+    if (description.includes("mist")) return "bg-night-mist";
+    if (description.includes("snow")) return "bg-night-snow";
+
+    return "bg-night-default";
   }
 };
 
@@ -107,7 +88,7 @@ const tempToColor = (celsius: number): string => {
 };
 
 const buildGradientStops = (
-  data: ChartDataHourly[] | ChartDataDaily[],
+  data: ChartData,
   units: "metric" | "imperial",
   opacity: number,
 ): Array<{ offset: string; color: string; opacity: number }> => {
@@ -120,7 +101,7 @@ const buildGradientStops = (
 };
 
 const formatAreaFillEnhanced = (
-  data: ChartDataHourly[] | ChartDataDaily[] | null | undefined,
+  data: ChartData | null | undefined,
   units: "metric" | "imperial",
 ): GradientConfig => {
   if (!data || data.length === 0) {
@@ -139,7 +120,7 @@ const formatAreaFillEnhanced = (
 };
 
 const formatAreaStrokeEnhanced = (
-  data: ChartDataHourly[] | ChartDataDaily[] | null | undefined,
+  data: ChartData | null | undefined,
   units: "metric" | "imperial",
 ): GradientConfig => {
   if (!data || data.length === 0) {
@@ -159,7 +140,7 @@ const formatAreaStrokeEnhanced = (
 
 // Keep original functions for backward compatibility
 const formatAreaFill = (
-  data: ChartDataHourly[] | ChartDataDaily[] | null | undefined,
+  data: ChartData | null | undefined,
   units: "metric" | "imperial",
 ): string => {
   if (!data || data.length === 0) return "rgba(255, 255, 255, 0.4)";
@@ -174,7 +155,7 @@ const formatAreaFill = (
 };
 
 const formatAreaStroke = (
-  data: ChartDataHourly[] | ChartDataDaily[] | null | undefined,
+  data: ChartData | null | undefined,
   units: "metric" | "imperial",
 ): string => {
   if (!data || data.length === 0) return "rgba(255, 255, 255, 1)";

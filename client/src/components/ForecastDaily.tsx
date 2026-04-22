@@ -16,7 +16,7 @@ const ForecastDaily: React.FC<ForecastDailyProps> = ({ weather, units }) => {
   const [chartData, setChartData] = useState<ChartDataDaily[]>([]);
 
   useEffect(() => {
-    if (weather && weather.forecast_day) {
+    if (weather?.forecast_day) {
       setChartData(transformForecastData(weather.forecast_day));
     }
   }, [weather]);

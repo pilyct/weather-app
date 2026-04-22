@@ -25,19 +25,21 @@ const WeatherPoem: React.FC<WeatherPoemProps> = ({ poemData }) => {
   const totalPages = Math.ceil(poemData.lines.length / linesPerPage);
 
   const highlightweatherWord = (phrase: string) => {
-    if (!poemData || !poemData.weatherWord) {
+    if (!poemData?.weatherWord) {
       return phrase;
     }
-    const regex = new RegExp(
-      `\\b(${poemData.weatherWord.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-      "gi",
+    const escapedWord = poemData.weatherWord.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&",
     );
+
+    const regex = new RegExp(String.raw`\b(${escapedWord})`, "gi");
     const parts = phrase.split(regex);
-    return parts.map((part, index) =>
+    return parts.map((part) =>
       regex.test(part) ? (
         <span
           className="font-semibold underline decoration-white/80"
-          key={index}
+          key={part}
         >
           {part}
         </span>
@@ -74,12 +76,16 @@ const WeatherPoem: React.FC<WeatherPoemProps> = ({ poemData }) => {
         </div>
 
         <div className="mb-3 min-h-[11.7rem] text-sm italic font-light leading-relaxed text-white sm:text-base">
-          {visibleLines.map((line, index) => (
-            <React.Fragment key={index}>
-              {highlightweatherWord(line)}
-              {index < visibleLines.length - 1 && <br />}
-            </React.Fragment>
-          ))}
+          {visibleLines.map((line, i) => {
+            const originalIndex = startIdx + i;
+
+            return (
+              <React.Fragment key={originalIndex}>
+                {highlightweatherWord(line)}
+                {i < visibleLines.length - 1 && <br />}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
 
@@ -116,9 +122,9 @@ function IconBtn({
   children,
   "aria-label": ariaLabel,
 }: {
-  onClick: () => void;
-  children: React.ReactNode;
-  "aria-label"?: string;
+  readonly onClick: () => void;
+  readonly children: React.ReactNode;
+  readonly "aria-label"?: string;
 }) {
   return (
     <button
