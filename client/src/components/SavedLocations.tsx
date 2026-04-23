@@ -1,11 +1,6 @@
 import { MdClose } from "react-icons/md";
-import { SavedLocation, ChartDataHourly } from "../types";
+import { SavedLocation } from "../types";
 import { formatTemperature, iconUrlFromCode } from "../utils/helperFunctions";
-import {
-  formatAreaFillEnhanced,
-  formatAreaStrokeEnhanced,
-} from "../utils/styleFunctions";
-import TemperatureAreaChart from "./TemperatureAreaChart";
 
 interface SavedLocationsProps {
   savedLocations: SavedLocation[];
