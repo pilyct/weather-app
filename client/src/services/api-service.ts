@@ -1,4 +1,4 @@
-import { WeatherData, PoemData, CitySuggestion } from "../types";
+import { WeatherData, PoemData, CitySuggestion, SavedLocation } from "../types";
 
 const URL = "http://localhost:3000";
 
@@ -88,9 +88,54 @@ async function getPoetryData(keyword: string): Promise<PoemData> {
   }
 }
 
+async function getSavedLocations(): Promise<SavedLocation[]> {
+  try {
+    const response = await fetch(`${URL}/locations`);
+    return (await response.json()) as SavedLocation[];
+  } catch (err) {
+    console.error("Error fetching saved locations");
+    throw err;
+  }
+}
+
+async function saveLocation(
+  location: Omit<SavedLocation, "id">,
+): Promise<SavedLocation> {
+  try {
+    const response = await fetch(`${URL}/locations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(location),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error ?? "Failed to save location");
+    }
+    return (await response.json()) as SavedLocation;
+  } catch (err) {
+    console.error("Error saving location");
+    throw err;
+  }
+}
+
+async function deleteSavedLocation(id: string): Promise<void> {
+  try {
+    const response = await fetch(`${URL}/locations/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) throw new Error("Failed to delete location");
+  } catch (err) {
+    console.error("Error deleting saved location");
+    throw err;
+  }
+}
+
 export {
   getWeatherData,
   getWeatherDataByCoords,
   getPoetryData,
   getCitySuggestions,
+  getSavedLocations,
+  saveLocation,
+  deleteSavedLocation,
 };

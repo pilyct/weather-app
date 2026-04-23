@@ -4,14 +4,18 @@ import {
   getWeatherData,
   getWeatherDataByCoords,
   getPoetryData,
+  getSavedLocations,
+  saveLocation,
+  deleteSavedLocation,
 } from "./services/api-service";
 import { formatBackground } from "./utils/styleFunctions";
 import WeatherCard from "./components/WeatherCard";
+import SavedLocations from "./components/SavedLocations";
 import ForecastDaily from "./components/ForecastDaily";
 import ForecastHourly from "./components/ForecastHourly";
 import WeatherPoem from "./components/WeatherPoem";
 import Spinner from "./components/Spinner";
-import { WeatherData, PoemData } from "./types";
+import { WeatherData, PoemData, SavedLocation } from "./types";
 
 type AppState = {
   weather: WeatherData | null;
@@ -32,6 +36,7 @@ const App: React.FC = () => {
     loading: true,
     error: null,
   });
+  const [savedLocations, setSavedLocations] = useState<SavedLocation[]>([]);
 
   const fetchData = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
@@ -69,7 +74,53 @@ const App: React.FC = () => {
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    getSavedLocations()
+      .then(setSavedLocations)
+      .catch(() => {});
+  }, []);
+
+  const handleSaveLocation = useCallback(async () => {
+    const { weather } = state;
+    if (!weather) return;
+    try {
+      const saved = await saveLocation({
+        city_name: weather.city_name,
+        country: weather.country,
+        lat: weather.coordinates.lat,
+        lon: weather.coordinates.lon,
+        temperature: weather.temperature,
+        temp_max: weather.temp_max,
+        temp_min: weather.temp_min,
+        icon: weather.icon,
+      });
+      setSavedLocations((prev) => [...prev, saved]);
+    } catch {
+      // already saved or error — silently ignore
+    }
+  }, [state]);
+
+  const handleDeleteLocation = useCallback(async (id: string) => {
+    try {
+      await deleteSavedLocation(id);
+      setSavedLocations((prev) => prev.filter((l) => l.id !== id));
+    } catch {
+      // silently ignore
+    }
+  }, []);
+
+  const handleSelectLocation = useCallback((loc: SavedLocation) => {
+    setCoords({ lat: loc.lat, lon: loc.lon });
+  }, []);
+
   const { weather, poem, loading, error } = state;
+
+  const isSaved =
+    !!weather &&
+    savedLocations.some(
+      (l) =>
+        l.lat === weather.coordinates.lat && l.lon === weather.coordinates.lon,
+    );
 
   let content;
   if (loading && !weather) {
@@ -96,7 +147,7 @@ const App: React.FC = () => {
     content = (
       <div className="mx-auto w-full max-w-350 px-4 py-8 lg:px-6 xl:px-8">
         <div className="flex flex-col items-center justify-center gap-4 lg:flex-row lg:items-start">
-          <div className="w-full max-w-lg lg:max-w-xl">
+          <div className="flex w-full max-w-lg flex-col gap-4 lg:max-w-xl">
             <WeatherCard
               setCity={(c) => {
                 setCoords(null);
@@ -106,7 +157,17 @@ const App: React.FC = () => {
               units={units}
               setUnits={setUnits}
               weather={weather}
+              isSaved={isSaved}
+              onSaveLocation={handleSaveLocation}
             />
+            {weather && (
+              <SavedLocations
+                savedLocations={savedLocations}
+                units={units}
+                onDelete={handleDeleteLocation}
+                onSelect={handleSelectLocation}
+              />
+            )}
           </div>
           <div className="flex w-full max-w-md flex-col gap-4 lg:max-w-lg">
             <ForecastHourly weather={weather} units={units} />

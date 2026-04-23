@@ -178,7 +178,7 @@ export default function Inputs({
           </button>
         </div>
         {/* Tooltip */}
-        <div className="absolute z-20 right-16 bottom-full mb-2 w-56 rounded-md bg-black/80 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute z-20 right-16 top-full mb-2 w-56 rounded-md bg-black/80 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity">
           Get weather for your location (optional), or search by city.
         </div>
         {geoError && <p className="mt-1 text-xs text-red-300">{geoError}</p>}

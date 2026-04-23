@@ -1,4 +1,5 @@
 import React from "react";
+import { MdBookmark, MdBookmarkBorder } from "react-icons/md";
 import TopButtons from "./TopButtons";
 import Inputs from "./Inputs";
 import TimeAndLocation from "./TimeAndLocation";
@@ -11,6 +12,8 @@ interface WeatherProps {
   units: "metric" | "imperial";
   setUnits: (units: "metric" | "imperial") => void;
   weather: WeatherData | null;
+  isSaved: boolean;
+  onSaveLocation: () => void;
 }
 
 const WeatherCard: React.FC<WeatherProps> = ({
@@ -19,6 +22,8 @@ const WeatherCard: React.FC<WeatherProps> = ({
   units,
   setUnits,
   weather,
+  isSaved,
+  onSaveLocation,
 }) => {
   return (
     <div className="w-full rounded-2xl border-2 border-slate-100/5 bg-gradient-to-br px-6 pt-5 pb-6 shadow-xl backdrop-blur-2xl">
@@ -41,6 +46,23 @@ const WeatherCard: React.FC<WeatherProps> = ({
           <>
             <TimeAndLocation weather={weather} />
             <TemperatureAndDetails weather={weather} units={units} />
+            <button
+              onClick={onSaveLocation}
+              disabled={isSaved}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 py-2 text-sm font-medium text-white/90 transition hover:bg-white/15 disabled:cursor-default disabled:opacity-50"
+            >
+              {isSaved ? (
+                <>
+                  <MdBookmark size={18} />
+                  Location saved
+                </>
+              ) : (
+                <>
+                  <MdBookmarkBorder size={18} />
+                  Save this location
+                </>
+              )}
+            </button>
           </>
         )}
       </div>

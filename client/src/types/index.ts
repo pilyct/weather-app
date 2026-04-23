@@ -72,3 +72,15 @@ export interface CitySuggestion {
   lon: number;
   label: string;
 }
+
+export interface SavedLocation {
+  id: string;
+  city_name: string;
+  country: string;
+  lat: number;
+  lon: number;
+  temperature: number;
+  temp_max: number;
+  temp_min: number;
+  icon: string;
+}
