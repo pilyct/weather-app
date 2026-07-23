@@ -16,7 +16,20 @@ const WeatherPoem: React.FC<WeatherPoemProps> = ({ poemData }) => {
   const linesPerPage = 6;
 
   if (!poemData) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full rounded-2xl border-2 border-slate-100/5 bg-gradient-to-br px-4 py-3 shadow-xl backdrop-blur-3xl">
+        <div className="flex items-center justify-start">
+          <p className="font-medium uppercase text-white">Weather Poem</p>
+        </div>
+        <hr className="my-2 border-white/20" />
+        <div className="flex min-h-[11.7rem] items-center justify-center gap-3">
+          <div className="h-6 w-6 animate-spinSlow rounded-full border-2 border-dashed border-orange-200" />
+          <p className="text-sm font-light italic text-white/90">
+            Finding a poem for this weather...
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const startIdx = (currentPage - 1) * linesPerPage;

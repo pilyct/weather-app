@@ -17,6 +17,7 @@ type AppState = {
   weather: WeatherData | null;
   poem: PoemData | null;
   loading: boolean;
+  poemLoading: boolean;
   error: string | null;
 };
 
@@ -30,17 +31,31 @@ const App: React.FC = () => {
     weather: null,
     poem: null,
     loading: true,
+    poemLoading: false,
     error: null,
   });
 
   const fetchData = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
+    setState((prev) => ({
+      ...prev,
+      loading: true,
+      poemLoading: false,
+      error: null,
+    }));
 
     try {
       const weatherData = coords
         ? await getWeatherDataByCoords(coords.lat, coords.lon)
         : await getWeatherData(city);
       if (!weatherData) throw new Error("City not found");
+
+      setState({
+        weather: weatherData,
+        poem: null,
+        loading: false,
+        poemLoading: true,
+        error: null,
+      });
 
       const keyword =
         weatherData.weather_description.split(/\s+/)[1] ||
@@ -49,17 +64,17 @@ const App: React.FC = () => {
 
       const poemData = await getPoetryData(keyword).catch(() => null);
 
-      setState({
-        weather: weatherData,
+      setState((prev) => ({
+        ...prev,
         poem: poemData,
-        loading: false,
-        error: null,
-      });
+        poemLoading: false,
+      }));
     } catch (error) {
       setState({
         weather: null,
         poem: null,
         loading: false,
+        poemLoading: false,
         error: error instanceof Error ? error.message : "An error occurred",
       });
     }
@@ -69,7 +84,7 @@ const App: React.FC = () => {
     fetchData();
   }, [fetchData]);
 
-  const { weather, poem, loading, error } = state;
+  const { weather, poem, loading, poemLoading, error } = state;
 
   let content;
   if (loading && !weather) {
@@ -111,7 +126,7 @@ const App: React.FC = () => {
           <div className="flex w-full max-w-md flex-col gap-4 lg:max-w-lg">
             <ForecastHourly weather={weather} units={units} />
             <ForecastDaily weather={weather} units={units} />
-            {poem && <WeatherPoem poemData={poem} />}
+            {(poem || poemLoading) && <WeatherPoem poemData={poem} />}
           </div>
         </div>
       </div>
