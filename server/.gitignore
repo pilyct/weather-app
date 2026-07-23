@@ -3,3 +3,6 @@ node_modules
 
 # any file that starts with "test"
 test*
+
+# Data
+data/
