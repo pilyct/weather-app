@@ -19,11 +19,18 @@ function normalizeKeyword(input: unknown): string {
   return trimmed;
 }
 
+// Strip a trailing plural "s" so "clouds" also matches "cloud" in poem text
+// (and vice versa) instead of requiring an exact singular/plural match.
+function stemKeyword(word: string): string {
+  const w = word.toLowerCase();
+  return w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w;
+}
+
 // Count substring occurrences safely (avoids regex injection/ReDoS)
 function countOccurrences(haystack: string, needle: string): number {
   if (!needle) return 0;
   const h = haystack.toLowerCase();
-  const n = needle.toLowerCase();
+  const n = stemKeyword(needle);
 
   let count = 0;
   let pos = 0;

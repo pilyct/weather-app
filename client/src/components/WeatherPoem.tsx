@@ -41,7 +41,12 @@ const WeatherPoem: React.FC<WeatherPoemProps> = ({ poemData }) => {
     if (!poemData?.weatherWord) {
       return phrase;
     }
-    const escapedWord = poemData.weatherWord.replace(
+    // Strip a trailing plural "s" so "clouds" also highlights "cloud" in the
+    // poem text (and vice versa), matching the server's occurrence counting.
+    const word = poemData.weatherWord.toLowerCase();
+    const stemmedWord =
+      word.length > 3 && word.endsWith("s") ? word.slice(0, -1) : word;
+    const escapedWord = stemmedWord.replace(
       /[.*+?^${}()|[\]\\]/g,
       String.raw`\$&`,
     );
