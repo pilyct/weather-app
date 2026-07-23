@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { DateTime } from "luxon";
 import openWeatherMap from "../models/weatherData";
+import { withCache } from "../utils/cache";
+
+const WEATHER_CACHE_TTL_MS = 5 * 60 * 1000;
+const SUGGESTIONS_CACHE_TTL_MS = 30 * 60 * 1000;
 
 interface GeoData {
   lat: number;
@@ -69,8 +73,10 @@ async function getWeatherData(req: Request, res: Response): Promise<void> {
 
     const { lat, lon } = geoData;
 
-    const weatherData = await fetchWeatherData(lat, lon);
-    const forecastData = await fetchForecastData(lat, lon);
+    const [weatherData, forecastData] = await Promise.all([
+      fetchWeatherData(lat, lon),
+      fetchForecastData(lat, lon),
+    ]);
 
     const formattedSunrise = formatTime(
       weatherData.sys.sunrise,
@@ -93,6 +99,7 @@ async function getWeatherData(req: Request, res: Response): Promise<void> {
       ...filterForecastData(forecastData, weatherData.timezone),
     };
 
+    res.set("Cache-Control", "public, max-age=300");
     res.json(responseData);
   } catch (error) {
     console.error(error);
@@ -106,48 +113,57 @@ async function fetchGeoData(
   city: string,
   country: string,
 ): Promise<GeoData | null> {
-  const geoUrl = new URL(`${openWeatherMap.GEO_URL}`);
-  geoUrl.search = new URLSearchParams({
-    q: `${city},${country}`,
-    limit: "1",
-    appid: openWeatherMap.API_KEY || "",
-  }).toString();
+  const cacheKey = `geo:${city.toLowerCase()},${country.toLowerCase()}`;
+  return withCache(cacheKey, WEATHER_CACHE_TTL_MS, async () => {
+    const geoUrl = new URL(`${openWeatherMap.GEO_URL}`);
+    geoUrl.search = new URLSearchParams({
+      q: `${city},${country}`,
+      limit: "1",
+      appid: openWeatherMap.API_KEY || "",
+    }).toString();
 
-  const geoResponse = await fetch(geoUrl.toString());
-  const geoData = await geoResponse.json();
-  return geoData.length ? geoData[0] : null;
+    const geoResponse = await fetch(geoUrl.toString());
+    const geoData = await geoResponse.json();
+    return geoData.length ? geoData[0] : null;
+  });
 }
 
 async function fetchWeatherData(
   lat: number,
   lon: number,
 ): Promise<WeatherData> {
-  const weatherUrl = new URL(`${openWeatherMap.BASE_URL}/weather`);
-  weatherUrl.search = new URLSearchParams({
-    lat: lat.toString(),
-    lon: lon.toString(),
-    appid: openWeatherMap.API_KEY || "",
-    units: "metric",
-  }).toString();
+  const cacheKey = `weather:${lat},${lon}`;
+  return withCache(cacheKey, WEATHER_CACHE_TTL_MS, async () => {
+    const weatherUrl = new URL(`${openWeatherMap.BASE_URL}/weather`);
+    weatherUrl.search = new URLSearchParams({
+      lat: lat.toString(),
+      lon: lon.toString(),
+      appid: openWeatherMap.API_KEY || "",
+      units: "metric",
+    }).toString();
 
-  const weatherResponse = await fetch(weatherUrl.toString());
-  return await weatherResponse.json();
+    const weatherResponse = await fetch(weatherUrl.toString());
+    return await weatherResponse.json();
+  });
 }
 
 async function fetchForecastData(
   lat: number,
   lon: number,
 ): Promise<ForecastData> {
-  const forecastUrl = new URL(`${openWeatherMap.BASE_URL}/forecast`);
-  forecastUrl.search = new URLSearchParams({
-    lat: lat.toString(),
-    lon: lon.toString(),
-    appid: openWeatherMap.API_KEY || "",
-    units: "metric",
-  }).toString();
+  const cacheKey = `forecast:${lat},${lon}`;
+  return withCache(cacheKey, WEATHER_CACHE_TTL_MS, async () => {
+    const forecastUrl = new URL(`${openWeatherMap.BASE_URL}/forecast`);
+    forecastUrl.search = new URLSearchParams({
+      lat: lat.toString(),
+      lon: lon.toString(),
+      appid: openWeatherMap.API_KEY || "",
+      units: "metric",
+    }).toString();
 
-  const forecastResponse = await fetch(forecastUrl.toString());
-  return await forecastResponse.json();
+    const forecastResponse = await fetch(forecastUrl.toString());
+    return await forecastResponse.json();
+  });
 }
 
 function formatTime(timestamp: number, timezoneOffset: number): string {
@@ -261,9 +277,11 @@ async function getWeatherByCoords(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const cityName = await fetchCityNameFromCoords(lat, lon);
-    const weatherData = await fetchWeatherData(lat, lon);
-    const forecastData = await fetchForecastData(lat, lon);
+    const [cityName, weatherData, forecastData] = await Promise.all([
+      fetchCityNameFromCoords(lat, lon),
+      fetchWeatherData(lat, lon),
+      fetchForecastData(lat, lon),
+    ]);
 
     const formattedSunrise = formatTime(
       weatherData.sys.sunrise,
@@ -286,6 +304,7 @@ async function getWeatherByCoords(req: Request, res: Response): Promise<void> {
       ...filterForecastData(forecastData, weatherData.timezone),
     };
 
+    res.set("Cache-Control", "public, max-age=300");
     res.json(responseData);
   } catch (error) {
     console.error(error);
@@ -299,17 +318,20 @@ async function fetchCityNameFromCoords(
   lat: number,
   lon: number,
 ): Promise<string> {
-  const reverseUrl = new URL(openWeatherMap.GEO_REVERSE_URL);
-  reverseUrl.search = new URLSearchParams({
-    lat: lat.toString(),
-    lon: lon.toString(),
-    limit: "1",
-    appid: openWeatherMap.API_KEY || "",
-  }).toString();
+  const cacheKey = `reverse-geo:${lat},${lon}`;
+  return withCache(cacheKey, WEATHER_CACHE_TTL_MS, async () => {
+    const reverseUrl = new URL(openWeatherMap.GEO_REVERSE_URL);
+    reverseUrl.search = new URLSearchParams({
+      lat: lat.toString(),
+      lon: lon.toString(),
+      limit: "1",
+      appid: openWeatherMap.API_KEY || "",
+    }).toString();
 
-  const response = await fetch(reverseUrl.toString());
-  const data = await response.json();
-  return data.length ? data[0].name : "Unknown";
+    const response = await fetch(reverseUrl.toString());
+    const data = await response.json();
+    return data.length ? data[0].name : "Unknown";
+  });
 }
 
 // ----------------
@@ -322,29 +344,37 @@ async function getCitySuggestions(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const geoUrl = new URL(`${openWeatherMap.GEO_URL}`);
-    geoUrl.search = new URLSearchParams({
-      q: query,
-      limit: "5", // get up to 5 suggestions
-      appid: openWeatherMap.API_KEY || "",
-    }).toString();
+    const cacheKey = `suggestions:${query.toLowerCase()}`;
+    const suggestions = await withCache(
+      cacheKey,
+      SUGGESTIONS_CACHE_TTL_MS,
+      async () => {
+        const geoUrl = new URL(`${openWeatherMap.GEO_URL}`);
+        geoUrl.search = new URLSearchParams({
+          q: query,
+          limit: "5", // get up to 5 suggestions
+          appid: openWeatherMap.API_KEY || "",
+        }).toString();
 
-    const geoResponse = await fetch(geoUrl.toString());
-    const geoData = await geoResponse.json();
+        const geoResponse = await fetch(geoUrl.toString());
+        const geoData = await geoResponse.json();
 
-    // format the response to include city, state, country
-    const suggestions = geoData.map((location: any) => ({
-      name: location.name,
-      state: location.state || "",
-      country: location.country,
-      lat: location.lat,
-      lon: location.lon,
-      // create a display label for the dropdown
-      label: location.state
-        ? `${location.name}, ${location.state}, ${location.country}`
-        : `${location.name}, ${location.country}`,
-    }));
+        // format the response to include city, state, country
+        return geoData.map((location: any) => ({
+          name: location.name,
+          state: location.state || "",
+          country: location.country,
+          lat: location.lat,
+          lon: location.lon,
+          // create a display label for the dropdown
+          label: location.state
+            ? `${location.name}, ${location.state}, ${location.country}`
+            : `${location.name}, ${location.country}`,
+        }));
+      },
+    );
 
+    res.set("Cache-Control", "public, max-age=1800");
     res.json(suggestions);
   } catch (error) {
     console.error(error);
