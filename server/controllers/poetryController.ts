@@ -46,15 +46,6 @@ function countOccurrences(haystack: string, needle: string): number {
 async function getPoemData(req: Request, res: Response): Promise<void> {
   const searchTerm = normalizeKeyword(req.query.keyword);
 
-  // If you want to allow empty keyword to still return a random poem, keep this as-is.
-  // If you want to require a keyword, uncomment the block below.
-  /*
-  if (!searchTerm) {
-    res.status(400).json({ error: "Invalid keyword" });
-    return;
-  }
-  */
-
   try {
     const selectedPoem = await fetchBestMatchFromPoetryDB(searchTerm);
 
