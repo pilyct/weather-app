@@ -22,18 +22,31 @@ export default function Inputs({
 
   // Debounced search for suggestions
   useEffect(() => {
+    const controller = new AbortController();
+
     const timer = setTimeout(async () => {
       if (cityName.trim().length >= 2) {
-        const results = await getCitySuggestions(cityName.trim());
-        setSuggestions(results);
-        setShowSuggestions(true);
+        try {
+          const results = await getCitySuggestions(
+            cityName.trim(),
+            controller.signal,
+          );
+          setSuggestions(results);
+          setShowSuggestions(true);
+        } catch (err) {
+          if (err instanceof Error && err.name === "AbortError") return;
+          throw err;
+        }
       } else {
         setSuggestions([]);
         setShowSuggestions(false);
       }
     }, 300); // Wait 300ms after user stops typing
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [cityName]);
 
   // Close suggestions when clicking outside
@@ -87,7 +100,9 @@ export default function Inputs({
           position.coords.latitude < -90 ||
           position.coords.latitude > 90
         ) {
-          throw new Error("Invalid latitude value");
+          setGeoLoading(false);
+          setGeoError("Invalid latitude value");
+          return;
         }
 
         if (
@@ -95,7 +110,9 @@ export default function Inputs({
           position.coords.longitude < -180 ||
           position.coords.longitude > 180
         ) {
-          throw new Error("Invalid longitude value");
+          setGeoLoading(false);
+          setGeoError("Invalid longitude value");
+          return;
         }
         setCoords({
           lat: position.coords.latitude,

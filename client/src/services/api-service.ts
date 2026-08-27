@@ -16,6 +16,9 @@ async function getWeatherData(city: string): Promise<WeatherData> {
       `${URL}/weather?city=${encodeURIComponent(city)}`,
     );
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error || `Error: ${response.statusText}`);
+    }
     return data as WeatherData;
   } catch (err) {
     console.error("Error fetching weather data");
@@ -38,6 +41,9 @@ async function getWeatherDataByCoords(
   try {
     const response = await fetch(`${URL}/weather/coords?lat=${lat}&lon=${lon}`);
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error || `Error: ${response.statusText}`);
+    }
     return data as WeatherData;
   } catch (err) {
     console.error("Error fetching weather data by coords");
@@ -45,7 +51,10 @@ async function getWeatherDataByCoords(
   }
 }
 
-async function getCitySuggestions(query: string): Promise<CitySuggestion[]> {
+async function getCitySuggestions(
+  query: string,
+  signal?: AbortSignal,
+): Promise<CitySuggestion[]> {
   if (!query) {
     throw new Error("Invalid query value");
   }
@@ -56,8 +65,12 @@ async function getCitySuggestions(query: string): Promise<CitySuggestion[]> {
   try {
     const response = await fetch(
       `${URL}/cities/suggestions?query=${encodeURIComponent(query)}`,
+      { signal },
     );
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error || `Error: ${response.statusText}`);
+    }
     return data as CitySuggestion[];
   } catch (err) {
     console.error("Error fetching city suggestions", err);
