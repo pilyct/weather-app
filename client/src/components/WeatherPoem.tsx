@@ -17,7 +17,7 @@ const WeatherPoem: React.FC<WeatherPoemProps> = ({ poemData }) => {
 
   if (!poemData) {
     return (
-      <div className="w-full rounded-2xl border-2 border-slate-100/5 bg-gradient-to-br px-4 py-3 shadow-xl backdrop-blur-3xl">
+      <div className="w-full rounded-2xl border-2 border-slate-100/5 bg-linear-to-br px-4 py-3 shadow-xl backdrop-blur-3xl">
         <div className="flex items-center justify-start">
           <p className="font-medium uppercase text-white">Weather Poem</p>
         </div>
@@ -77,7 +77,7 @@ const WeatherPoem: React.FC<WeatherPoemProps> = ({ poemData }) => {
   };
 
   return (
-    <div className="w-full rounded-2xl border-2 border-slate-100/5 bg-gradient-to-br px-4 py-3 shadow-xl backdrop-blur-3xl">
+    <div className="w-full rounded-2xl border-2 border-slate-100/5 bg-linear-to-br px-4 py-3 shadow-xl backdrop-blur-3xl">
       <div className="flex items-center justify-start">
         <p className="font-medium uppercase text-white">Weather Poem</p>
       </div>
