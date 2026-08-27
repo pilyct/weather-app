@@ -70,13 +70,12 @@ const App: React.FC = () => {
         poemLoading: false,
       }));
     } catch (error) {
-      setState({
-        weather: null,
-        poem: null,
+      setState((prev) => ({
+        ...prev,
         loading: false,
         poemLoading: false,
         error: error instanceof Error ? error.message : "An error occurred",
-      });
+      }));
     }
   }, [city, coords]);
 
@@ -93,7 +92,7 @@ const App: React.FC = () => {
         <Spinner />
       </div>
     );
-  } else if (error) {
+  } else if (error && !weather) {
     content = (
       <div className="flex min-h-screen items-center justify-center">
         <div className="rounded-lg bg-white/90 p-8 text-center shadow-lg backdrop-blur-sm">
@@ -121,6 +120,7 @@ const App: React.FC = () => {
               units={units}
               setUnits={setUnits}
               weather={weather}
+              error={error}
             />
           </div>
           <div className="flex w-full max-w-md flex-col gap-4 lg:max-w-lg">
@@ -137,6 +137,11 @@ const App: React.FC = () => {
     <div className={`w-full`}>
       <div className={`fixed inset-0 z-0 ${formatBackground(weather)}`} />
       <div className="pointer-events-none fixed inset-0 animation-zoomInOut" />
+      {loading && weather && (
+        <div className="fixed inset-x-0 top-0 z-50 h-1 overflow-hidden bg-white/10">
+          <div className="h-full w-1/3 animate-pulse bg-blue-400" />
+        </div>
+      )}
       <div className="relative z-10">{content}</div>
     </div>
   );

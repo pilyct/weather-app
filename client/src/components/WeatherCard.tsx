@@ -11,6 +11,7 @@ interface WeatherProps {
   units: "metric" | "imperial";
   setUnits: (units: "metric" | "imperial") => void;
   weather: WeatherData | null;
+  error?: string | null;
 }
 
 const WeatherCard: React.FC<WeatherProps> = ({
@@ -19,6 +20,7 @@ const WeatherCard: React.FC<WeatherProps> = ({
   units,
   setUnits,
   weather,
+  error,
 }) => {
   return (
     <div className="w-full rounded-2xl border-2 border-slate-100/5 bg-gradient-to-br px-6 pt-5 pb-6 shadow-xl backdrop-blur-2xl">
@@ -36,6 +38,12 @@ const WeatherCard: React.FC<WeatherProps> = ({
       <div className="space-y-4">
         <TopButtons setCity={setCity} />
         <Inputs setCity={setCity} setCoords={setCoords} setUnits={setUnits} />
+
+        {error && (
+          <p className="mx-5 rounded-lg bg-red-500/20 px-3 py-2 text-sm text-red-100">
+            {error}
+          </p>
+        )}
 
         {weather && (
           <>
