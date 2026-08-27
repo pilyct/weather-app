@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import router from "./router";
+import { rateLimiter } from "./middleware/rateLimiter";
 
 const app = express();
 app.disable("x-powered-by");
@@ -13,6 +14,12 @@ app.use(
   }),
 );
 app.use(express.json());
+
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok" });
+});
+
+app.use(rateLimiter);
 app.use(router);
 
 app.listen(port, () => {
